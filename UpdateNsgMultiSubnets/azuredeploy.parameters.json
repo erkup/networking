@@ -1,0 +1,22 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "subnets": {
+      "value": {
+        "subnetConfigs": [
+          {
+            "virtualNetworkResourceGroupName": "NSGautomate-RG",
+            "virtualNetworkName": "vNet",
+            "subnetName": "default"
+          },
+          {
+            "virtualNetworkResourceGroupName": "NSGautomate-RG",
+            "virtualNetworkName": "vNet",
+            "subnetName": "default"
+          } 
+        ]
+      }
+    }
+  }
+}
