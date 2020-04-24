@@ -21,7 +21,7 @@
       "metadata": {
         "description": "The base URI where artifacts required by this template are located."
       },
-      "defaultValue": "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/201-nsg-add-to-existing-subnet/"
+      "defaultValue": "https://raw.githubusercontent.com/erkup/networking/master/UpdateNsgMultiSubnets/"
     },
     "_artifactsLocationSasToken": {
       "type": "securestring",
@@ -77,7 +77,7 @@
           "contentVersion": "1.0.0.0"
         },
         "parametersLink": {
-          "uri": "[concat(parameters('_artifactsLocation'), concat('nested/azuredeploy.parameters.json', parameters('_artifactsLocationSasToken')))]",
+          "uri": "[concat(parameters('_artifactsLocation'), concat('azuredeploy.parameters.json', parameters('_artifactsLocationSasToken')))]",
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
@@ -88,7 +88,7 @@
             "value": "[parameters('subnets').subnetConfigs[copyIndex()].subnetName]"
           },
           "subnetAddressPrefix": {
-            "value": "[reference(resourceId(parameters('subnets').subnetConfigs[copyIndex()].virtualNetworkResourceGroupName, 'Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetName')), '2018-03-01').addressPrefix]"
+            "value": "[reference(resourceId(parameters('subnets').subnetConfigs[copyIndex()].virtualNetworkResourceGroupName, 'Microsoft.Network/virtualNetworks/subnets', parameters('subnets').subnetConfigs[copyIndex()].virtualNetworkName, parameters('subnets').subnetConfigs[copyIndex()].subnetName), '2018-03-01').addressPrefix]"
           },
           "nsgId": {
             "value": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('nsgName'))]"

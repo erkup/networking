@@ -13,7 +13,7 @@
           {
             "virtualNetworkResourceGroupName": "NSGautomate-RG",
             "virtualNetworkName": "vNet",
-            "subnetName": "default"
+            "subnetName": "data"
           } 
         ]
       }
