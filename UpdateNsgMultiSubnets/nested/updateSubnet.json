@@ -7,10 +7,13 @@
     },
     "nsgName": {
       "type": "string"
+    },
+    "nsgResourceGroupName": {
+      "type": "string"
     }
   },
   "variables": {
-    "nsgId": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('nsgName'))]"
+    "nsgId": "[resourceId(parameters('nsgResourceGroupName'),'Microsoft.Network/networkSecurityGroups', parameters('nsgName'))]"
   },
   "resources": [
     {
@@ -19,7 +22,7 @@
       "name": "[concat(parameters('subnets').subnetConfigs[0].virtualNetworkName, '/', parameters('subnets').subnetConfigs[0].subnetName)]",
       "location": "[resourceGroup().location]",
       "properties": {
-        "addressPrefix": "[parameters('subnets').subnetConfigs[0].subnetAddressPrefix]",
+        "addressPrefix": "[reference(resourceId(parameters('subnets').subnetConfigs[0].virtualNetworkResourceGroupName, 'Microsoft.Network/virtualNetworks/subnets', parameters('subnets').subnetConfigs[0].virtualNetworkName, parameters('subnets').subnetConfigs[0].subnetName), '2018-03-01').addressPrefix]",
         "networkSecurityGroup": {
           "id": "[variables('nsgId')]"
         }
