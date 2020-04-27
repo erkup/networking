@@ -1,0 +1,133 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "custName": {
+            "type": "string",
+            "metadata": {
+                "description": "Customer name environment is stood up for"
+            }
+        },
+        "location": {
+            "type": "string",
+            "metadata": {
+                "description": "The Azure location to deploy all resources"
+            },
+            "defaultValue": "[resourceGroup().location]"
+        },       
+        "_artifactsLocation": {
+            "type": "string",
+            "metadata": {
+                "description": "Path to the repository or storage account where the linked templates can be found"
+            },
+            "defaultValue": "https://raw.githubusercontent.com/christofvg/AzureVDC/master/"
+        },
+        "_artifactsLocationSasToken": {
+            "type": "securestring",
+            "metadata": {
+                "description": "The sasToken required to access _artifactsLocation."
+            },
+            "defaultValue": ""
+        },
+        "virtualNetworkRG": {
+            "type": "string",
+            "metadata": {
+                "description": "The resource group name to deploy the virtual network"
+            },
+            "defaultValue": "networking-rg"
+        },
+        "custVnet": {
+            "type": "string",
+            "metadata": {
+                "description": "The name for the virtual network"
+            },
+            "defaultValue": "Cust-Vnet"
+        },
+        "custVnetAddrSpace": {
+            "type": "string",
+            "metadata": {
+                "description": "The prefix for the HUB virtual network"
+            },
+            "defaultValue": "10.0.0.0/16"
+        },
+        "dataSubnet": {
+            "type": "string",
+            "metadata": {
+                "description": "The name for the trusted subnet"
+            },
+            "defaultValue": "data-snet"
+        },
+        "dataSubnetPrefix": {
+            "type": "string",
+            "metadata": {
+                "description": "The prefix for the data subnet"
+            },
+            "defaultValue": "10.0.0.0/24"
+        },
+        "ediSubnet": {
+            "type": "string",
+            "metadata": {
+                "description": "The name for the EDI subnet"
+            },
+            "defaultValue": "edi-snet"
+        },
+        "ediSubnetPrefix": {
+            "type": "string",
+            "metadata": {
+                "description": "The prefix for the EDI subnet"
+            },
+            "defaultValue": "10.1.0.0/24"
+        },
+        "rdsSubnet": {
+            "type": "string",
+            "metadata": {
+                "description": "The name for the RDS subnet"
+            },
+            "defaultValue": "rds-snet"
+        },
+        "rdsSubnetPrefix": {
+            "type": "string",
+            "metadata": {
+                "description": "The prefix for the RDS subnet"
+            },
+            "defaultValue": "10.2.0.0/24"
+        },
+        "webSubnet": {
+            "type": "string",
+            "metadata": {
+                "description": "The name for the web subnet"
+            },
+            "defaultValue": "web-snet"
+        },
+        "webSubnetPrefix": {
+            "type": "string",
+            "metadata": {
+                "description": "The prefix for the trusted subnet"
+            },
+            "defaultValue": "10.3.0.0/24"
+        }
+
+    },
+    "functions": [
+    ],
+    "variables": {
+        "virtualNetworkRGName": "[concat(parameters('custName'),'-',parameters('virtualNetworkRG'))]",
+        "custVnetName": "[concat(parameters('custName'),'-',parameters('custVnet'))]",
+        "dataSubnetName": "[concat(parameters('custName'),'-',parameters('dataSubnet'))]",
+        "ediSubnetName": "[concat(parameters('custName'),'-',parameters('ediSubnet'))]",
+        "rdsSubnetName": "[concat(parameters('custName'),'-',parameters('rdsSubnet'))]",
+        "webSubnetName": "[concat(parameters('custName'),'-',parameters('webSubnet'))]",
+        "networkTemplateUri": "[uri(parameters('_artifactsLocation'), concat('ARM Templates/Hub network/azuredeploy.json'))]"
+    },
+    "resources": [
+                {
+            "type": "Microsoft.Resources/resourceGroups",
+            "apiVersion": "2019-10-01",
+            "location": "[parameters('location')]",
+            "name": "[variables('virtualNetworkRGName')]",
+            "properties": {}
+        }
+    ],
+    "outputs": {
+    }
+}
