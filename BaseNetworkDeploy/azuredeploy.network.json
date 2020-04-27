@@ -20,7 +20,7 @@
             "metadata": {
                 "description": "Path to the repository or storage account where the linked templates can be found"
             },
-            "defaultValue": "https://raw.githubusercontent.com/christofvg/AzureVDC/master/"
+            "defaultValue": "https://raw.githubusercontent.com/erkup/networking/"
         },
         "_artifactsLocationSasToken": {
             "type": "securestring",
@@ -117,7 +117,7 @@
         "ediSubnetName": "[concat(parameters('custName'),'-',parameters('ediSubnet'))]",
         "rdsSubnetName": "[concat(parameters('custName'),'-',parameters('rdsSubnet'))]",
         "webSubnetName": "[concat(parameters('custName'),'-',parameters('webSubnet'))]",
-        "networkTemplateUri": "[uri(parameters('_artifactsLocation'), concat('ARM Templates/Hub network/azuredeploy.json'))]"
+        "networkTemplateUri": "[uri(parameters('_artifactsLocation'), concat('createVnetSubnets/BaseNetworkDeploy/azuredeploy.network.json'))]"
     },
     "resources": [
                 {
