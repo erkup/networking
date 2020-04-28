@@ -35,7 +35,6 @@
                 "Demo": "FakeCustomer",
                 "Tag2": "Example"
             }
-
         },
         "custVnet": {
             "type": "string",
@@ -111,11 +110,6 @@
     },
     "variables": {
         "virtualNetworkRGName": "[concat(parameters('custName'),'-',parameters('virtualNetworkRG'))]",
-        "custVnetName": "[concat(parameters('custName'),'-',parameters('custVnet'))]",
-        "dataSubnetName": "[concat(parameters('custName'),'-',parameters('dataSubnet'))]",
-        "ediSubnetName": "[concat(parameters('custName'),'-',parameters('ediSubnet'))]",
-        "rdsSubnetName": "[concat(parameters('custName'),'-',parameters('rdsSubnet'))]",
-        "webSubnetName": "[concat(parameters('custName'),'-',parameters('webSubnet'))]",
         "networkTemplateUri": "[uri(parameters('_artifactsLocation'), concat('createVnetSubnets/nestedVnetDeploy/azuredeploy.network.json'))]"
     },
     "resources": [
@@ -143,16 +137,36 @@
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
-                    "custVnetName": "[variables('custVnetName')]",
-                    "custVnetAddrSpace": "[parameters('custVnetAddrSpace')]",
-                    "dataSubnetName": "[variables('dataSubnetName')]",
-                    "dataSubnetPrefix": "[parameters('dataSubnetPrefix')]",
-                    "ediSubnetName": "[variables('ediSubnetName')]",
-                    "ediSubnetPrefix": "[parameters('ediSubnetPrefix')]",
-                    "rdsSubnetName": "[variables('rdsSubnetName')]",
-                    "rdsSubnetPrefix": "[parameters('rdsSubnetPrefix')]",
-                    "webSubnetName": "[variables('webSubnetName')]",
-                    "webSubnetPrefix": "[parameters('webSubnetPrefix')]"
+                    "custVnet": {
+                        "value": "[parameters('custVnet')]"
+                    },
+                    "custAddrSpace": {
+                        "value": "[parameters('custVnetAddrSpace')]"
+                    },
+                    "dataSubnet": {
+                        "value": "[parameters('dataSubnet')]"
+                    },
+                    "dataSubnetPrefix": {
+                        "value": "[parameters('dataSubnetPrefix')]"
+                    },
+                    "ediSubnet": {
+                        "value": "[parameters('ediSubnet')]"
+                    },
+                    "ediSubnetPrefix": {
+                        "value": "[parameters('ediSubnetPrefix')]"
+                    },
+                    "rdsSubnet": {
+                        "value": "[parameters('rdsSubnet')]"
+                    },
+                    "rdsSubnetPrefix": {
+                        "value": "[parameters('rdsSubnetPrefix')]"
+                    },
+                    "webSubnet": {
+                        "value":"[parameters('webSubnet')]"
+                    },
+                    "webSubnetPrefix": {
+                        "value": "[parameters('webSubnetPrefix')]"
+                    }
                 }
             }
         }
