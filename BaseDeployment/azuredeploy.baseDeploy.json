@@ -140,7 +140,7 @@
                     "custVnet": {
                         "value": "[parameters('custVnet')]"
                     },
-                    "custAddrSpace": {
+                    "custVnetAddrSpace": {
                         "value": "[parameters('custVnetAddrSpace')]"
                     },
                     "dataSubnet": {
