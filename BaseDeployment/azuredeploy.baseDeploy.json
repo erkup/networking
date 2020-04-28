@@ -137,6 +137,9 @@
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
+                    "custName": {
+                        "value": "[parameters('custName')]"
+                    },
                     "custVnet": {
                         "value": "[parameters('custVnet')]"
                     },
