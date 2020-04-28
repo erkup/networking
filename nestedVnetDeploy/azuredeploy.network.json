@@ -1,0 +1,93 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "custVnetName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name for the virtual network"
+            }
+        },
+        "custVnetAddrSpace": {
+            "type": "string",
+            "metadata": {
+                "description": "The prefix for the HUB virtual network"
+            }
+        },
+        "dataSubnetName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name for the trusted subnet"
+            }
+        },
+        "dataSubnetPrefix": {
+            "type": "string",
+            "metadata": {
+                "description": "The prefix for the data subnet"
+            }
+        },
+        "ediSubnetName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name for the EDI subnet"
+            }
+        },
+        "ediSubnetPrefix": {
+            "type": "string",
+            "metadata": {
+                "description": "The prefix for the EDI subnet"
+            }
+        },
+        "rdsSubnetName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name for the RDS subnet"
+            }
+        },
+        "rdsSubnetPrefix": {
+            "type": "string",
+            "metadata": {
+                "description": "The prefix for the RDS subnet"
+            }
+        },
+        "webSubnetName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name for the web subnet"
+            }
+        },
+        "webSubnetPrefix": {
+            "type": "string",
+            "metadata": {
+                "description": "The prefix for the web subnet"
+            }
+        }
+    },
+    "functions": [],
+    "variables":{},
+    "resources": [
+        {
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2019-12-01",
+            "name":"[concat(parameters('custVnetName'),'-deploy')]",
+            "location":"[resourceGroup().location]",
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "[parameters('custVnetAddrSpace')]"
+                    ]
+                }, 
+                "subnets": [
+                    {
+                        "name": "[parameters('dataSubnetName')]",
+                        "properties": {
+                            "addressPrefix": "[parameters('dataSubnetPrefix')]"
+                        }
+                    }
+                ]
+            }
+        }
+    ],
+    "outputs": {
+    }
+}
