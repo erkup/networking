@@ -55,7 +55,7 @@
         {
             "type": "Microsoft.Network/virtualNetworks",
             "apiVersion": "2019-12-01",
-            "name":"[concat(variables('custVnetName'),'-deploy')]",
+            "name":"[variables('custVnetName')]",
             "location":"[resourceGroup().location]",
             "properties": {
                 "addressSpace": {
