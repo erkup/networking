@@ -2,7 +2,7 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-         "custName": {
+        "custName": {
             "type": "string",
             "metadata": {
                 "description": "Customer name environment is created for"
@@ -13,7 +13,7 @@
             "metadata": {
                 "description": "The name for the virtual network"
             }
-        }, 
+        },
         "custVnetAddrSpace": {
             "type": "string"
         },
@@ -40,11 +40,15 @@
         },
         "webSubnetPrefix": {
             "type": "string"
-        }               
+        },
+        "nsgName": {
+            "type": "string"
+        }
 
     },
-    "functions": [],
-    "variables":{
+    "functions": [
+    ],
+    "variables": {
         "custVnetName": "[concat(parameters('custName'),'-',parameters('custVnet'))]",
         "dataSubnetName": "[concat(parameters('custName'),'-',parameters('dataSubnet'))]",
         "ediSubnetName": "[concat(parameters('custName'),'-',parameters('ediSubnet'))]",
@@ -53,41 +57,80 @@
     },
     "resources": [
         {
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "name": "[parameters('nsgName')]",
+            "location": "[resourceGroup().location]",
+            "apiVersion": "2019-12-01",
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "SSH",
+                        "properties": {
+                            "description": "Allows SSH traffic",
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "22",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 100,
+                            "direction": "Inbound"
+                        }
+                    }
+                ]
+            }
+        },
+        {
             "type": "Microsoft.Network/virtualNetworks",
             "apiVersion": "2019-12-01",
-            "name":"[variables('custVnetName')]",
-            "location":"[resourceGroup().location]",
+            "name": "[variables('custVnetName')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[parameters('nsgName')]"
+            ],
             "properties": {
                 "addressSpace": {
                     "addressPrefixes": [
                         "[parameters('custVnetAddrSpace')]"
                     ]
-                }, 
+                },
                 "subnets": [
                     {
                         "name": "[variables('dataSubnetName')]",
                         "properties": {
-                            "addressPrefix": "[parameters('dataSubnetPrefix')]"
+                            "addressPrefix": "[parameters('dataSubnetPrefix')]",
+                            "networkSecurityGroup": {
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('nsgName'))]"
+                            }
                         }
                     },
-                                        {
+                    {
                         "name": "[variables('ediSubnetName')]",
                         "properties": {
-                            "addressPrefix": "[parameters('ediSubnetPrefix')]"
+                            "addressPrefix": "[parameters('ediSubnetPrefix')]",
+                            "networkSecurityGroup": {
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('nsgName'))]"
+                            }
                         }
                     },
                     {
                         "name": "[variables('rdsSubnetName')]",
                         "properties": {
-                            "addressPrefix": "[parameters('rdsSubnetPrefix')]"
+                            "addressPrefix": "[parameters('rdsSubnetPrefix')]",
+                            "networkSecurityGroup": {
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('nsgName'))]"
+                            }
                         }
                     },
                     {
                         "name": "[variables('webSubnetName')]",
                         "properties": {
-                            "addressPrefix": "[parameters('webSubnetPrefix')]"
+                            "addressPrefix": "[parameters('webSubnetPrefix')]",
+                            "networkSecurityGroup": {
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('nsgName'))]"
+                            }
                         }
-                    }                                        
+                    }
                 ]
             }
         }
