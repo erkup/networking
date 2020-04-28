@@ -5,7 +5,7 @@
         "custName": {
             "type": "string",
             "metadata": {
-                "description": "Customer name environment is stood up for"
+                "description": "Customer name environment is created for"
             }
         },
         "location": {
@@ -13,8 +13,8 @@
             "metadata": {
                 "description": "The Azure location to deploy all resources"
             },
-            "defaultValue": "[resourceGroup().location]"
-        },       
+            "defaultValue": "EastUS2"
+        },
         "_artifactsLocation": {
             "type": "string",
             "metadata": {
@@ -22,19 +22,21 @@
             },
             "defaultValue": "https://raw.githubusercontent.com/erkup/networking/"
         },
-        "_artifactsLocationSasToken": {
-            "type": "securestring",
-            "metadata": {
-                "description": "The sasToken required to access _artifactsLocation."
-            },
-            "defaultValue": ""
-        },
         "virtualNetworkRG": {
             "type": "string",
             "metadata": {
                 "description": "The resource group name to deploy the virtual network"
             },
-            "defaultValue": "networking-rg"
+            "defaultValue": "network-rg"
+        },
+        "resourceTags": {
+            "type": "object",
+            "defaultValue": [
+                {
+                "Demo": "FakeCustomer",
+                "Tag2": "Example"
+                }
+            ]
         },
         "custVnet": {
             "type": "string",
@@ -102,14 +104,12 @@
         "webSubnetPrefix": {
             "type": "string",
             "metadata": {
-                "description": "The prefix for the trusted subnet"
+                "description": "The prefix for the web subnet"
             },
             "defaultValue": "10.3.0.0/24"
         }
 
     },
-    "functions": [
-    ],
     "variables": {
         "virtualNetworkRGName": "[concat(parameters('custName'),'-',parameters('virtualNetworkRG'))]",
         "custVnetName": "[concat(parameters('custName'),'-',parameters('custVnet'))]",
@@ -120,12 +120,39 @@
         "networkTemplateUri": "[uri(parameters('_artifactsLocation'), concat('createVnetSubnets/BaseNetworkDeploy/azuredeploy.network.json'))]"
     },
     "resources": [
-                {
+        {
             "type": "Microsoft.Resources/resourceGroups",
             "apiVersion": "2019-10-01",
             "location": "[parameters('location')]",
             "name": "[variables('virtualNetworkRGName')]",
+            "tags": 
+                "[parameters('resourceTags')]",
             "properties": {}
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "name": "[concat(parameters('custName'),'-','network-Deploy')]",
+            "dependsOn": [
+                "[variables('virtualNetworkRGName')]"
+            ], 
+            "resourceGroup": "[variables('virtualNetworkRGName')]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": "[variables('networkTemplateUri')]",
+                "parameters": {
+                    "custVnetName":"[variables('custVnetName')]",
+                    "custVnetAddrSpace": "[parameters('custVnetAddrSpace')]",
+                    "dataSubnetName": "[variables('dataSubnetName')]",
+                    "dataSubnetPrefix":"[parameters('dataSubnetPrefix')]",
+                    "ediSubnetName": "[variables('ediSubnetName')]",
+                    "ediSubnetPrefix":"[parameters('ediSubnetPrefix')]",
+                    "rdsSubnetName": "[variables('rdsSubnetName')]",
+                    "rdsSubnetPrefix":"[parameters('rdsSubnetPrefix')]",
+                    "webSubnetName": "[variables('webSubnetName')]",
+                    "webSubnetPrefix":"[parameters('webSubnetPrefix')]"                    
+                }
+            }
         }
     ],
     "outputs": {
