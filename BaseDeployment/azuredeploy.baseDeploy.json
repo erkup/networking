@@ -105,6 +105,10 @@
                 "description": "The prefix for the web subnet"
             },
             "defaultValue": "10.0.3.0/24"
+        },
+        "nsgName": {
+            "type": "string",
+            "defaultValue": "BaseNSG-Allow-SSH"
         }
 
     },
@@ -169,6 +173,9 @@
                     },
                     "webSubnetPrefix": {
                         "value": "[parameters('webSubnetPrefix')]"
+                    },
+                    "nsgName": {
+                        "value": "[parameters('nsgName')]"
                     }
                 }
             }
