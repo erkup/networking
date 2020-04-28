@@ -131,7 +131,7 @@
         {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-03-01",
-            "name": "[concat(parameters('custName'),'-','network-Deploy')]",
+            "name": "networking-deploy",
             "dependsOn": [
                 "[variables('virtualNetworkRGName')]"
             ],

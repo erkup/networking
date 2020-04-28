@@ -25,42 +25,6 @@
             "metadata": {
                 "description": "The prefix for the data subnet"
             }
-        },
-        "ediSubnetName": {
-            "type": "string",
-            "metadata": {
-                "description": "The name for the EDI subnet"
-            }
-        },
-        "ediSubnetPrefix": {
-            "type": "string",
-            "metadata": {
-                "description": "The prefix for the EDI subnet"
-            }
-        },
-        "rdsSubnetName": {
-            "type": "string",
-            "metadata": {
-                "description": "The name for the RDS subnet"
-            }
-        },
-        "rdsSubnetPrefix": {
-            "type": "string",
-            "metadata": {
-                "description": "The prefix for the RDS subnet"
-            }
-        },
-        "webSubnetName": {
-            "type": "string",
-            "metadata": {
-                "description": "The name for the web subnet"
-            }
-        },
-        "webSubnetPrefix": {
-            "type": "string",
-            "metadata": {
-                "description": "The prefix for the web subnet"
-            }
         }
     },
     "functions": [],
