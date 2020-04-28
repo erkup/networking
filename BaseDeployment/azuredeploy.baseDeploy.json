@@ -31,11 +31,11 @@
         },
         "resourceTags": {
             "type": "object",
-            "defaultValue":{
+            "defaultValue": {
                 "Demo": "FakeCustomer",
                 "Tag2": "Example"
-                }
-            
+            }
+
         },
         "custVnet": {
             "type": "string",
@@ -124,32 +124,35 @@
             "apiVersion": "2019-10-01",
             "location": "[parameters('location')]",
             "name": "[variables('virtualNetworkRGName')]",
-            "tags": 
-                "[parameters('resourceTags')]",
-            "properties": {}
+            "tags": "[parameters('resourceTags')]",
+            "properties": {
+            }
         },
         {
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2019-10-01",
+            "apiVersion": "2019-03-01",
             "name": "[concat(parameters('custName'),'-','network-Deploy')]",
             "dependsOn": [
                 "[variables('virtualNetworkRGName')]"
-            ], 
+            ],
             "resourceGroup": "[variables('virtualNetworkRGName')]",
             "properties": {
                 "mode": "Incremental",
-                "templateLink": "[variables('networkTemplateUri')]",
+                "templateLink": {
+                    "uri": "[variables('networkTemplateUri')]",
+                    "contentVersion": "1.0.0.0"
+                },
                 "parameters": {
-                    "custVnetName":"[variables('custVnetName')]",
+                    "custVnetName": "[variables('custVnetName')]",
                     "custVnetAddrSpace": "[parameters('custVnetAddrSpace')]",
                     "dataSubnetName": "[variables('dataSubnetName')]",
-                    "dataSubnetPrefix":"[parameters('dataSubnetPrefix')]",
+                    "dataSubnetPrefix": "[parameters('dataSubnetPrefix')]",
                     "ediSubnetName": "[variables('ediSubnetName')]",
-                    "ediSubnetPrefix":"[parameters('ediSubnetPrefix')]",
+                    "ediSubnetPrefix": "[parameters('ediSubnetPrefix')]",
                     "rdsSubnetName": "[variables('rdsSubnetName')]",
-                    "rdsSubnetPrefix":"[parameters('rdsSubnetPrefix')]",
+                    "rdsSubnetPrefix": "[parameters('rdsSubnetPrefix')]",
                     "webSubnetName": "[variables('webSubnetName')]",
-                    "webSubnetPrefix":"[parameters('webSubnetPrefix')]"                    
+                    "webSubnetPrefix": "[parameters('webSubnetPrefix')]"
                 }
             }
         }
