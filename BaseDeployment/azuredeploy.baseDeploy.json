@@ -76,7 +76,7 @@
             "metadata": {
                 "description": "The prefix for the EDI subnet"
             },
-            "defaultValue": "10.1.0.0/24"
+            "defaultValue": "10.0.1.0/24"
         },
         "rdsSubnet": {
             "type": "string",
@@ -90,7 +90,7 @@
             "metadata": {
                 "description": "The prefix for the RDS subnet"
             },
-            "defaultValue": "10.2.0.0/24"
+            "defaultValue": "10.0.2.0/24"
         },
         "webSubnet": {
             "type": "string",
@@ -104,7 +104,7 @@
             "metadata": {
                 "description": "The prefix for the web subnet"
             },
-            "defaultValue": "10.3.0.0/24"
+            "defaultValue": "10.0.3.0/24"
         }
 
     },
