@@ -114,7 +114,7 @@
     },
     "variables": {
         "virtualNetworkRGName": "[concat(parameters('custName'),'-',parameters('virtualNetworkRG'))]",
-        "networkTemplateUri": "[uri(parameters('_artifactsLocation'), concat('createVnetSubnets/nestedVnetDeploy/azuredeploy.network.json'))]"
+        "networkTemplateUri": "[uri(parameters('_artifactsLocation'), concat('master/nestedVnetDeploy/azuredeploy.network.json'))]"
     },
     "resources": [
         {
