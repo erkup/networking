@@ -69,7 +69,7 @@
                             "description": "Allows AD traffic",
                             "protocol": "*",
                             "sourcePortRange": "*",
-                            "destinationPortRange": [
+                            "destinationPortRanges": [
                                 "53",
                                 "88",
                                 "53",
@@ -83,14 +83,14 @@
                                 "3268",
                                 "3269",
                                 "9389",
-                                "49152-65535"
-                            ],
-                            "sourceAddressPrefix": "virtualNetwork",
-                            "destinationAddressPrefix": "virtualNetwork",
+                                "49152-65535"   
+                            ],                            
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
                             "access": "Allow",
                             "priority": 200,
                             "direction": "Inbound"
-                        }
+                        } 
                     },
                     {
                         "name": "FileIn",
@@ -98,7 +98,7 @@
                             "description": "Allows File Traffic",
                             "protocol": "*",
                             "sourcePortRange": "*",
-                            "destinationPortRange": [
+                            "destinationPortRanges": [
                                 "445",
                                 "500",
                                 "4500"
@@ -116,7 +116,7 @@
                             "description": "Allows SQL Traffic",
                             "protocol": "*",
                             "sourcePortRange": "*",
-                            "destinationPortRange": [
+                            "destinationPortRanges": [
                                 "1433",
                                 "1434",
                                 "4022"
