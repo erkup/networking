@@ -64,33 +64,101 @@
             "properties": {
                 "securityRules": [
                     {
-                        "name": "SSH",
+                        "name": "AD-IN",
                         "properties": {
-                            "description": "Allows SSH traffic",
-                            "protocol": "Tcp",
+                            "description": "Allows AD traffic",
+                            "protocol": "*",
                             "sourcePortRange": "*",
-                            "destinationPortRange": "22",
-                            "sourceAddressPrefix": "*",
-                            "destinationAddressPrefix": "*",
+                            "destinationPortRange": [
+                                "53",
+                                "88",
+                                "53", "88", "135", "137", "138", "139", "389", "636", "3268", "3269", "9389", "49152-65535"
+                            ],
+                            "sourceAddressPrefix": "virtualNetwork",
+                            "destinationAddressPrefix": "virtualNetwork",
                             "access": "Allow",
-                            "priority": 100,
+                            "priority": 200,
                             "direction": "Inbound"
                         }
                     }, 
                     {
-                        "name": "RDP",
+                        "name": "FileIn",
                         "properties": {
-                            "description": "Allows RDP traffic",
-                            "protocol": "Tcp",
+                            "description": "Allows File Traffic",
+                            "protocol": "*",
                             "sourcePortRange": "*",
-                            "destinationPortRange": "3389",
-                            "sourceAddressPrefix": "*",
-                            "destinationAddressPrefix": "*",
+                            "destinationPortRange": [
+                                "445",
+                                "500",
+                                "4500"
+                            ],
+                            "sourceAddressPrefix": "virtualNetwork",
+                            "destinationAddressPrefix": "virtualNetwork",
                             "access": "Allow",
-                            "priority": 110,
+                            "priority": 205,
                             "direction": "Inbound"
                         }
-                    }
+                    },
+                    {
+                        "name": "APP_SQL-IN",
+                        "properties": {
+                            "description": "Allows SQL Traffic",
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": [
+                                "1433",
+                                "1434",
+                                "4022"
+                            ],
+                            "sourceAddressPrefix": "virtualNetwork",
+                            "destinationAddressPrefix": "virtualNetwork",
+                            "access": "Allow",
+                            "priority": 210,
+                            "direction": "Inbound"
+                        }
+                    },
+                    {
+                        "name": "KASEYA_5721_IN",
+                        "properties": {
+                            "description": "Allows Kaseya Traffic",
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "5721",
+                            "sourceAddressPrefix": "virtualNetwork",
+                            "destinationAddressPrefix": "virtualNetwork",
+                            "access": "Allow",
+                            "priority": 215,
+                            "direction": "Inbound"
+                        }
+                    },
+                    {
+                        "name": "PWRSHELL_MGMT-IN",
+                        "properties": {
+                            "description": "Allows PS Traffic",
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "5985-5986",
+                            "sourceAddressPrefix": "virtualNetwork",
+                            "destinationAddressPrefix": "virtualNetwork",
+                            "access": "Allow",
+                            "priority": 220,
+                            "direction": "Inbound"
+                        }
+                    },
+                   {
+                        "name": "ICMP-IN",
+                        "properties": {
+                            "description": "Allows ICMP Traffic",
+                            "protocol": "Icmp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "*",
+                            "sourceAddressPrefix": "virtualNetwork",
+                            "destinationAddressPrefix": "virtualNetwork",
+                            "access": "Allow",
+                            "priority": 225,
+                            "direction": "Inbound"
+                        }
+                    }                                                      
                 ]
             }
         },

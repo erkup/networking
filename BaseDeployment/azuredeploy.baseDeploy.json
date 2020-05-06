@@ -108,7 +108,7 @@
         },
         "nsgName": {
             "type": "string",
-            "defaultValue": "BaseNSG-Allow-SSH"
+            "defaultValue": "Base-NSG"
         }
 
     },
