@@ -72,7 +72,18 @@
                             "destinationPortRange": [
                                 "53",
                                 "88",
-                                "53", "88", "135", "137", "138", "139", "389", "636", "3268", "3269", "9389", "49152-65535"
+                                "53",
+                                "88",
+                                "135",
+                                "137",
+                                "138",
+                                "139",
+                                "389",
+                                "636",
+                                "3268",
+                                "3269",
+                                "9389",
+                                "49152-65535"
                             ],
                             "sourceAddressPrefix": "virtualNetwork",
                             "destinationAddressPrefix": "virtualNetwork",
@@ -80,7 +91,7 @@
                             "priority": 200,
                             "direction": "Inbound"
                         }
-                    }, 
+                    },
                     {
                         "name": "FileIn",
                         "properties": {
@@ -145,7 +156,7 @@
                             "direction": "Inbound"
                         }
                     },
-                   {
+                    {
                         "name": "ICMP-IN",
                         "properties": {
                             "description": "Allows ICMP Traffic",
@@ -158,7 +169,7 @@
                             "priority": 225,
                             "direction": "Inbound"
                         }
-                    }                                                      
+                    }
                 ]
             }
         },
