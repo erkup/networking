@@ -8,6 +8,15 @@
                 "description": "Customer name environment is created for"
             }
         },
+        "tShirtSize": {
+            "type": "string",
+            "allowedValues": [
+                "Small",
+                "Medium",
+                "Large"
+            ],
+            "defaultValue":"Meduim"
+        },
         "custVnetAddrSpace": {
             "type": "string",
             "metadata": {
@@ -45,33 +54,32 @@
         }
     },
     "variables": {
-        "virtualNetworkRGName": "[concat(parameters('custName'),'-',variables('virtualNetworkRG'))]",
-        "networkTemplateUri": "[uri(variables('_artifactsLocation'), concat('nestedVnetDeploy/azuredeploy.network.json'))]", 
-         "location": "EastUS2",
-                // "The Azure location to deploy all resources"
-    
+        "location": "EastUS2",
+        // "The Azure location to deploy all resources"
         "_artifactsLocation": "https://raw.githubusercontent.com/erkup/networking/reduceParametersAddReadme/",
         // "Path to the repository or storage account where the linked templates can be found
-        "virtualNetworkRG": "network-rg",
         "resourceTags": {
-                "Demo": "FakeCustomer",
-                "Tag2": "Example"
-            },
-        "custVnet": "[concat(parameters('custName'), '-vnet')]",
-        // Customer Vnet name
-        "dataSubnet": "[concat(parameters('custName'), 'data-snet')]",
-        "ediSubnet": "[concat(parameters('custName'), 'edi-snet')]",
-        "rdsSubnet": "[concat(parameters('custName'), 'rds-snet')]",
-        "webSubnet": "[concat(parameters('custName'), 'web-snet')]",
-        "nsgName": "[concat(parameters('custName'), '-Base-NSG')]"
+            "Demo": "FakeCustomer",
+            "Tag2": "Example"
+        },
+        "networkSettings": {
+            "virtualNetworkRG": "[concat(parameters('custName'),'-network-rg')]",
+            "networkTemplateUri": "[uri(variables('_artifactsLocation'), concat('nestedVnetDeploy/azuredeploy.network.json'))]",
+            "custVnet": "[concat(parameters('custName'), '-vnet')]",
+            "dataSubnet": "[concat(parameters('custName'), 'data-snet')]",
+            "ediSubnet": "[concat(parameters('custName'), 'edi-snet')]",
+            "rdsSubnet": "[concat(parameters('custName'), 'rds-snet')]",
+            "webSubnet": "[concat(parameters('custName'), 'web-snet')]",
+            "nsgName": "[concat(parameters('custName'), '-Base-NSG')]"
+        }
     },
-    
+
     "resources": [
         {
             "type": "Microsoft.Resources/resourceGroups",
             "apiVersion": "2019-10-01",
             "location": "[variables('location')]",
-            "name": "[variables('virtualNetworkRGName')]",
+            "name": "[variables('networkSettings').virtualNetworkRG]",
             "tags": "[variables('resourceTags')]",
             "properties": {
             }
@@ -81,48 +89,48 @@
             "apiVersion": "2019-03-01",
             "name": "networking-deploy",
             "dependsOn": [
-                "[variables('virtualNetworkRGName')]"
+                "[variables('networkSettings').virtualNetworkRG]"
             ],
-            "resourceGroup": "[variables('virtualNetworkRGName')]",
+            "resourceGroup": "[variables('networkSettings').virtualNetworkRG]",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "[variables('networkTemplateUri')]",
+                    "uri": "[variables('networkSettings').networkTemplateUri]",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
                     "custVnet": {
-                        "value": "[variables('custVnet')]"
+                        "value": "[variables('networkSettings').custVnet]"
                     },
                     "custVnetAddrSpace": {
                         "value": "[parameters('custVnetAddrSpace')]"
                     },
                     "dataSubnet": {
-                        "value": "[variables('dataSubnet')]"
+                        "value": "[variables('networkSettings').dataSubnet]"
                     },
                     "dataSubnetPrefix": {
                         "value": "[parameters('dataSubnetPrefix')]"
                     },
                     "ediSubnet": {
-                        "value": "[variables('ediSubnet')]"
+                        "value": "[variables('networkSettings').ediSubnet]"
                     },
                     "ediSubnetPrefix": {
                         "value": "[parameters('ediSubnetPrefix')]"
                     },
                     "rdsSubnet": {
-                        "value": "[variables('rdsSubnet')]"
+                        "value": "[variables('networkSettings').rdsSubnet]"
                     },
                     "rdsSubnetPrefix": {
                         "value": "[parameters('rdsSubnetPrefix')]"
                     },
                     "webSubnet": {
-                        "value":"[variables('webSubnet')]"
+                        "value": "[variables('networkSettings').webSubnet]"
                     },
                     "webSubnetPrefix": {
                         "value": "[parameters('webSubnetPrefix')]"
                     },
                     "nsgName": {
-                        "value": "[variables('nsgName')]"
+                        "value": "[variables('networkSettings').nsgName]"
                     }
                 }
             }
