@@ -8,54 +8,12 @@
                 "description": "Customer name environment is created for"
             }
         },
-        "location": {
-            "type": "string",
-            "metadata": {
-                "description": "The Azure location to deploy all resources"
-            },
-            "defaultValue": "EastUS2"
-        },
-        "_artifactsLocation": {
-            "type": "string",
-            "metadata": {
-                "description": "Path to the repository or storage account where the linked templates can be found"
-            },
-            "defaultValue": "https://raw.githubusercontent.com/erkup/networking/"
-        },
-        "virtualNetworkRG": {
-            "type": "string",
-            "metadata": {
-                "description": "The resource group name to deploy the virtual network"
-            },
-            "defaultValue": "network-rg"
-        },
-        "resourceTags": {
-            "type": "object",
-            "defaultValue": {
-                "Demo": "FakeCustomer",
-                "Tag2": "Example"
-            }
-        },
-        "custVnet": {
-            "type": "string",
-            "metadata": {
-                "description": "The name for the virtual network"
-            },
-            "defaultValue": "Cust-Vnet"
-        },
         "custVnetAddrSpace": {
             "type": "string",
             "metadata": {
                 "description": "The prefix for the HUB virtual network"
             },
             "defaultValue": "10.0.0.0/16"
-        },
-        "dataSubnet": {
-            "type": "string",
-            "metadata": {
-                "description": "The name for the trusted subnet"
-            },
-            "defaultValue": "data-snet"
         },
         "dataSubnetPrefix": {
             "type": "string",
@@ -64,26 +22,12 @@
             },
             "defaultValue": "10.0.0.0/24"
         },
-        "ediSubnet": {
-            "type": "string",
-            "metadata": {
-                "description": "The name for the EDI subnet"
-            },
-            "defaultValue": "edi-snet"
-        },
         "ediSubnetPrefix": {
             "type": "string",
             "metadata": {
                 "description": "The prefix for the EDI subnet"
             },
             "defaultValue": "10.0.1.0/24"
-        },
-        "rdsSubnet": {
-            "type": "string",
-            "metadata": {
-                "description": "The name for the RDS subnet"
-            },
-            "defaultValue": "rds-snet"
         },
         "rdsSubnetPrefix": {
             "type": "string",
@@ -92,37 +36,43 @@
             },
             "defaultValue": "10.0.2.0/24"
         },
-        "webSubnet": {
-            "type": "string",
-            "metadata": {
-                "description": "The name for the web subnet"
-            },
-            "defaultValue": "web-snet"
-        },
         "webSubnetPrefix": {
             "type": "string",
             "metadata": {
                 "description": "The prefix for the web subnet"
             },
             "defaultValue": "10.0.3.0/24"
-        },
-        "nsgName": {
-            "type": "string",
-            "defaultValue": "Base-NSG"
         }
-
     },
     "variables": {
-        "virtualNetworkRGName": "[concat(parameters('custName'),'-',parameters('virtualNetworkRG'))]",
-        "networkTemplateUri": "[uri(parameters('_artifactsLocation'), concat('master/nestedVnetDeploy/azuredeploy.network.json'))]"
+        "virtualNetworkRGName": "[concat(parameters('custName'),'-',variables('virtualNetworkRG'))]",
+        "networkTemplateUri": "[uri(variables('_artifactsLocation'), concat('nestedVnetDeploy/azuredeploy.network.json'))]", 
+         "location": "EastUS2",
+                // "The Azure location to deploy all resources"
+    
+        "_artifactsLocation": "https://raw.githubusercontent.com/erkup/networking/reduceParametersAddReadme/",
+        // "Path to the repository or storage account where the linked templates can be found
+        "virtualNetworkRG": "network-rg",
+        "resourceTags": {
+                "Demo": "FakeCustomer",
+                "Tag2": "Example"
+            },
+        "custVnet": "[concat(parameters('custName'), '-vnet')]",
+        // Customer Vnet name
+        "dataSubnet": "[concat(parameters('custName'), 'data-snet')]",
+        "ediSubnet": "[concat(parameters('custName'), 'edi-snet')]",
+        "rdsSubnet": "[concat(parameters('custName'), 'rds-snet')]",
+        "webSubnet": "[concat(parameters('custName'), 'web-snet')]",
+        "nsgName": "[concat(parameters('custName'), '-Base-NSG')]"
     },
+    
     "resources": [
         {
             "type": "Microsoft.Resources/resourceGroups",
             "apiVersion": "2019-10-01",
-            "location": "[parameters('location')]",
+            "location": "[variables('location')]",
             "name": "[variables('virtualNetworkRGName')]",
-            "tags": "[parameters('resourceTags')]",
+            "tags": "[variables('resourceTags')]",
             "properties": {
             }
         },
@@ -141,41 +91,38 @@
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
-                    "custName": {
-                        "value": "[parameters('custName')]"
-                    },
                     "custVnet": {
-                        "value": "[parameters('custVnet')]"
+                        "value": "[variables('custVnet')]"
                     },
                     "custVnetAddrSpace": {
                         "value": "[parameters('custVnetAddrSpace')]"
                     },
                     "dataSubnet": {
-                        "value": "[parameters('dataSubnet')]"
+                        "value": "[variables('dataSubnet')]"
                     },
                     "dataSubnetPrefix": {
                         "value": "[parameters('dataSubnetPrefix')]"
                     },
                     "ediSubnet": {
-                        "value": "[parameters('ediSubnet')]"
+                        "value": "[variables('ediSubnet')]"
                     },
                     "ediSubnetPrefix": {
                         "value": "[parameters('ediSubnetPrefix')]"
                     },
                     "rdsSubnet": {
-                        "value": "[parameters('rdsSubnet')]"
+                        "value": "[variables('rdsSubnet')]"
                     },
                     "rdsSubnetPrefix": {
                         "value": "[parameters('rdsSubnetPrefix')]"
                     },
                     "webSubnet": {
-                        "value":"[parameters('webSubnet')]"
+                        "value":"[variables('webSubnet')]"
                     },
                     "webSubnetPrefix": {
                         "value": "[parameters('webSubnetPrefix')]"
                     },
                     "nsgName": {
-                        "value": "[parameters('nsgName')]"
+                        "value": "[variables('nsgName')]"
                     }
                 }
             }
