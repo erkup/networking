@@ -8,14 +8,27 @@
                 "description": "Customer name environment is created for"
             }
         },
-        "tShirtSize": {
+        // "tShirtSize": {
+        //     "type": "string",
+        //     "allowedValues": [
+        //         "Small",
+        //         "Medium",
+        //         "Large"
+        //     ],
+        //     "defaultValue":"Meduim"
+        // },
+        "adminUserName": {
             "type": "string",
-            "allowedValues": [
-                "Small",
-                "Medium",
-                "Large"
-            ],
-            "defaultValue":"Meduim"
+            "metadata": {
+                "description": "admin username of the VM"
+            }
+        },
+        "adminPassword": {
+            "type": "securestring",
+            "minLength": 8,
+            "metadata": {
+                "description": "admin password for VM"
+            }
         },
         "custVnetAddrSpace": {
             "type": "string",
@@ -55,9 +68,7 @@
     },
     "variables": {
         "location": "EastUS2",
-        // "The Azure location to deploy all resources"
         "_artifactsLocation": "https://raw.githubusercontent.com/erkup/networking/reduceParametersAddReadme/",
-        // "Path to the repository or storage account where the linked templates can be found
         "resourceTags": {
             "Demo": "FakeCustomer",
             "Tag2": "Example"
@@ -71,6 +82,39 @@
             "rdsSubnet": "[concat(parameters('custName'), 'rds-snet')]",
             "webSubnet": "[concat(parameters('custName'), 'web-snet')]",
             "nsgName": "[concat(parameters('custName'), '-Base-NSG')]"
+        },
+        "sqlConfig": {
+            "sqlTemplateUri": "[uri(variables('_artifactsLocation'), concat('vmDeploy/azuredeploy.sql.json'))]",
+            "sqlRG": "[concat(parameters('custName'), '-sql-rg')]",
+            "sqlVmName": "[concat(parameters('custName'),'-sql')]",
+            "imageOffer": "SQL2017-WS2016",
+            "sqlSku": "Enterprise",
+            "storageWorkloadType": "General",
+            "networkInterfaceName": "[concat(variables('sqlConfig').sqlVmName, '-nic')]",
+            "diskConfigurationType": "NEW",
+            "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('networkSettings').dataSubnet, variables('networkSettings').dataSubnet)]",
+            "dataDisksLuns": "[array(range(0 ,variables('dbSizeMedium').sqlDataDiskCount))]",
+            "logDisksLuns": "[array(range(variables('dbSizeMedium').sqlDataDiskCount, variables('dbSizeMedium').sqlLogDiskCount))]",
+            "dataDisks": {
+                "createOption": "empty",
+                "caching": "ReadOnly",
+                "writeAcceleratorEnabled": false,
+                "storageAccountType": "Premium_LRS",
+                "diskSizeGB": 1023
+            },
+            "logPath": "G:\\SQLLog",
+            "tempDbPath": "D:\\SQLTemp"
+        },
+        "dbSizeMedium": {
+            "virtualMachineSize": "Standard_DS13_v2",
+            "numberOfVms": 2,
+            "sqlDataDiskCount": 2,
+            "sqlLogDiskCount": 2
+             
+        },
+        "machineSettings": {
+            "adminUsername": "[parameters('adminUserName')]",
+            "adminPassword": "[parameters('adminPassword')]"
         }
     },
 
@@ -85,11 +129,73 @@
             }
         },
         {
+            "type": "Microsoft.Resources/resourceGroups",
+            "apiVersion": "2019-10-01",
+            "location": "[variables('location')]",
+            "name": "[variables('sqlConfig').sqlRG]",
+            "tags": "[variables('resourceTags')]",
+            "properties": {
+            }
+        },
+        {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-03-01",
             "name": "networking-deploy",
             "dependsOn": [
-                "[variables('networkSettings').virtualNetworkRG]"
+                "[variables('sqlConfig').sqlRG]"
+            ],
+            "resourceGroup": "[variables('sqlConfig').sqlRG]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('sqlConfig').sqlTemplateUri]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "networkInterfaceName": {
+                        "value": "[variables('sqlConfig').networkInterfaceName]"
+                    },
+                    "subnetRef": {
+                        "value": "[variables('sqlConfig').subnetRef]"
+                    },
+                    "sqlVmName": {
+                        "value": "[variables('sqlConfig').sqlVmName]"
+                    },
+                    "virtualMachineSize": {
+                        "value": "[variables('dbSizeMedium').virtualMachineSize]"
+                    },
+                    "imageOffer": {
+                        "value": "[variables('sqlConfig').imageOffer]"
+                    },
+                    "sqlSku": {
+                        "value": "[variables('sqlConfig').sqlSku]"
+                    },
+                    "sqlDataDisksCount": {
+                        "value": "[variables('dbSizeMedium').sqlDataDiskCount]"
+                    },
+                    "sqlLogDisksCount": {
+                        "value": "[variables('dbSizeMedium').sqlLogDiskCount]"
+                    },
+                    "dataDisks": {
+                        "value": "[variables('sqlConfig').dataDisks]"
+                    },
+                    "adminUsername": {
+                        "value": "[variables('machineSettings').adminUsername]"
+                    },
+                    "adminPassword": {
+                        "value":"[variables('machineSettings').adminPassword]"
+                    },
+                    "dataDisksLUNs":"[variables('sqlConfig').dataDisksLuns]",
+                    "logDisksLuns":"[variables('sqlConfig').logDisksLuns]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-03-01",
+            "name": "sqlVm-deploy",
+            "dependsOn": [
+                "[variables('sqlConfig').sqlRG]"
             ],
             "resourceGroup": "[variables('networkSettings').virtualNetworkRG]",
             "properties": {
@@ -98,7 +204,7 @@
                     "uri": "[variables('networkSettings').networkTemplateUri]",
                     "contentVersion": "1.0.0.0"
                 },
-                "parameters": {
+                               "parameters": {
                     "custVnet": {
                         "value": "[variables('networkSettings').custVnet]"
                     },
@@ -134,7 +240,7 @@
                     }
                 }
             }
-        }
+        }       
     ],
     "outputs": {
     }
