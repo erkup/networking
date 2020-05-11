@@ -1,0 +1,167 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "networkInterfaceName": {
+            "type": "string"
+        },
+        "subnetRef": {
+            "type": "string"
+        }, 
+        "sqlVmName": {
+            "type": "string"
+        },
+        "virtualMachineSize": {
+            "type": "string"
+        },
+        "imageOffer": {
+            "type": "string"
+        },
+        "sqlSku": {
+            "type": "string"
+        },
+        "sqlDataDisksCount": {
+            "type": "string"
+        },
+        "sqlLogDisksCount": {
+            "type": "string"
+        },
+        "dataDisks": {
+            "type": "string"
+        },
+        "adminUsername": {
+            "type": "string"
+        },
+        "adminPassword": {
+            "type": "string"
+        },
+        "dataDisksLUNs": {
+          "type": "string"
+        },
+        "logDisksLuns": {
+          "type": "string"
+        }
+
+    },
+    "functions": [],
+    "variables": {
+      "storageWorkloadType": "General",
+      "dataPath": "F:\\SQLData",
+      "tempDbPath":"D:\\SQLTemp",
+      "logPath": "G:\\SQLLog"
+    },
+    "resources": [
+              {
+        "type": "Microsoft.Network/networkInterfaces",
+        "apiVersion": "2018-10-01",
+        "name": "[parameters('networkInterfaceName')]",
+        "location": "[resourceGroup().location]",
+        "dependsOn": [
+        ],
+        "properties": {
+          "ipConfigurations": [
+            {
+              "name": "ipconfig1",
+              "properties": {
+                "subnet": {
+                  "id": "[parameters('subnetRef')]"
+                },
+                "privateIPAllocationMethod": "Dynamic"
+              }
+            }
+          ],
+          "enableAcceleratedNetworking": true
+        } 
+      },
+      {
+        "type": "Microsoft.Compute/virtualMachines",
+        "apiVersion": "2018-10-01",
+        "name": "[parameters('sqlVmName')]",
+        "location": "[resourceGroup().location]",
+        "dependsOn": [
+          "[concat('Microsoft.Network/networkInterfaces/', parameters('networkInterfaceName'))]"
+        ],
+        "properties": {
+          "hardwareProfile": {
+            "vmSize": "[parameters('virtualMachineSize')]"
+          },
+          "storageProfile": {
+            "osDisk": {
+              "createOption": "fromImage",
+              "managedDisk": {
+                "storageAccountType": "Premium_LRS"
+              }
+            },
+            "imageReference": {
+              "publisher": "MicrosoftSQLServer",
+              "offer": "[parameters('imageOffer')]",
+              "sku": "[parameters('sqlSku')]",
+              "version": "latest"
+            },
+            "copy": [
+              {
+                "name": "dataDisks",
+                "count": "[add(parameters('sqlDataDisksCount'), parameters('sqlLogDisksCount'))]",
+                "input": {
+                  "lun": "[copyIndex('dataDisks')]",
+                  "createOption": "[parameters('dataDisks').createOption]",
+                  "caching": "[if(greaterOrEquals(copyIndex('dataDisks'), parameters('sqlDataDisksCount')) ,'None', parameters('dataDisks').caching )]",
+                  "writeAcceleratorEnabled": "[parameters('dataDisks').writeAcceleratorEnabled]",
+                  "diskSizeGB": "[parameters('dataDisks').diskSizeGB]",
+                  "managedDisk": {
+                    "storageAccountType": "[parameters('dataDisks').storageAccountType]"
+                  }
+                }
+              }
+            ]
+          },
+          "networkProfile": {
+            "networkInterfaces": [
+              {
+                "id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaceName'))]"
+              }
+            ]
+          },
+          "osProfile": {
+            "computerName": "[parameters('sqlVmName')]",
+            "adminUsername": "[parameters('adminUsername')]",
+            "adminPassword": "[parameters('adminPassword')]",
+            "windowsConfiguration": {
+              "enableAutomaticUpdates": true,
+              "provisionVmAgent": true
+            }
+          }
+        }
+      },
+      {
+        "type": "Microsoft.SqlVirtualMachine/SqlVirtualMachines",
+        "apiVersion": "2017-03-01-preview",
+        "name": "[parameters('sqlVmName')]",
+        "location": "[resourceGroup().location]",
+        "dependsOn": [
+          "[resourceId('Microsoft.Compute/virtualMachines', parameters('sqlVmName'))]"
+        ],
+        "properties": {
+          "virtualMachineResourceId": "[resourceId('Microsoft.Compute/virtualMachines', parameters('sqlVmName'))]",
+          "sqlManagement": "Full",
+          "SqlServerLicenseType": "PAYG",
+          "StorageConfigurationSettings": {
+            "DiskConfigurationType": "NEW",
+            "StorageWorkloadType": "[variables('storageWorkloadType')]",
+            "SQLDataSettings": {
+              "LUNs": "[parameters('dataDisksLUNs')]",
+              "DefaultFilePath": "[variables('dataPath')]"
+            },
+            "SQLLogSettings": {
+              "Luns": "[parameters('logDisksLUNs')]",
+              "DefaultFilePath": "[variables('logPath')]"
+            },
+            "SQLTempDbSettings": {
+              "DefaultFilePath": "[variables('tempDbPath')]"
+            }
+          }
+        }
+      }
+    ],
+    "outputs": {}
+}
