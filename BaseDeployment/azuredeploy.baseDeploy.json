@@ -77,8 +77,6 @@
         "sqlConfig": {
             "sqlTemplateUri": "[uri(variables('_artifactsLocation'), concat('vmDeploy/azuredeploy.sql.json'))]",
             "sqlRG": "[concat(parameters('custName'), '-sql-rg')]",
-
-            "diskConfigurationType": "NEW",
             "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('networkSettings').dataSubnet, variables('networkSettings').dataSubnet)]",
             "dataDisksLuns": "[array(range(0 ,variables('dbSizeMedium').sqlDataDiskCount))]",
             "logDisksLuns": "[array(range(variables('dbSizeMedium').sqlDataDiskCount, variables('dbSizeMedium').sqlLogDiskCount))]",
@@ -124,7 +122,7 @@
         {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-03-01",
-            "name": "networking-deploy",
+            "name": "SQL-deploy",
             "dependsOn": [
                 "[variables('sqlConfig').sqlRG]"
             ],
@@ -168,9 +166,9 @@
         {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-03-01",
-            "name": "sqlVm-deploy",
+            "name": "network-deploy",
             "dependsOn": [
-                "[variables('sqlConfig').sqlRG]"
+                "[variables('networkSettings').virtualNetworkRG]"
             ],
             "resourceGroup": "[variables('networkSettings').virtualNetworkRG]",
             "properties": {
