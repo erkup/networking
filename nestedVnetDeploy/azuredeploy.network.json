@@ -2,12 +2,6 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "custName": {
-            "type": "string",
-            "metadata": {
-                "description": "Customer name environment is created for"
-            }
-        },
         "custVnet": {
             "type": "string",
             "metadata": {
@@ -48,13 +42,7 @@
     },
     "functions": [
     ],
-    "variables": {
-        "custVnetName": "[concat(parameters('custName'),'-',parameters('custVnet'))]",
-        "dataSubnetName": "[concat(parameters('custName'),'-',parameters('dataSubnet'))]",
-        "ediSubnetName": "[concat(parameters('custName'),'-',parameters('ediSubnet'))]",
-        "rdsSubnetName": "[concat(parameters('custName'),'-',parameters('rdsSubnet'))]",
-        "webSubnetName": "[concat(parameters('custName'),'-',parameters('webSubnet'))]"
-    },
+    "variables": {},
     "resources": [
         {
             "type": "Microsoft.Network/networkSecurityGroups",
@@ -174,7 +162,7 @@
         {
             "type": "Microsoft.Network/virtualNetworks",
             "apiVersion": "2019-12-01",
-            "name": "[variables('custVnetName')]",
+            "name": "[parameters('custVnet')]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
                 "[parameters('nsgName')]"
@@ -187,7 +175,7 @@
                 },
                 "subnets": [
                     {
-                        "name": "[variables('dataSubnetName')]",
+                        "name": "[parameters('dataSubnet')]",
                         "properties": {
                             "addressPrefix": "[parameters('dataSubnetPrefix')]",
                             "networkSecurityGroup": {
@@ -196,7 +184,7 @@
                         }
                     },
                     {
-                        "name": "[variables('ediSubnetName')]",
+                        "name": "[parameters('ediSubnet')]",
                         "properties": {
                             "addressPrefix": "[parameters('ediSubnetPrefix')]",
                             "networkSecurityGroup": {
@@ -205,7 +193,7 @@
                         }
                     },
                     {
-                        "name": "[variables('rdsSubnetName')]",
+                        "name": "[parameters('rdsSubnet')]",
                         "properties": {
                             "addressPrefix": "[parameters('rdsSubnetPrefix')]",
                             "networkSecurityGroup": {
@@ -214,7 +202,7 @@
                         }
                     },
                     {
-                        "name": "[variables('webSubnetName')]",
+                        "name": "[parameters('webSubnet')]",
                         "properties": {
                             "addressPrefix": "[parameters('webSubnetPrefix')]",
                             "networkSecurityGroup": {
