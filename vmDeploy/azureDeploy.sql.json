@@ -43,7 +43,8 @@
       "sqlLogDiskCount": 2
     },
     "dataDisksLuns": "[array(range(0 ,variables('dbSizeSmall').sqlDataDiskCount))]",
-    "logDisksLuns": "[array(range(variables('dbSizeSmall').sqlDataDiskCount, variables('dbSizeSmall').sqlLogDiskCount))]"
+    "logDisksLuns": "[array(range(variables('dbSizeSmall').sqlDataDiskCount, variables('dbSizeSmall').sqlLogDiskCount))]", 
+    "subnetRef": "[concat(parameters('custName'),'-network-rg',parameters('subnetRef'))]"
   },
   "resources": [
     {
@@ -59,7 +60,7 @@
             "name": "ipconfig1",
             "properties": {
               "subnet": {
-                "id": "[parameters('subnetRef')]"
+                "id": "[variables('subnetRef')]"
               },
               "privateIPAllocationMethod": "Dynamic"
             }
