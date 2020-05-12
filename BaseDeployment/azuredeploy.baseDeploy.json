@@ -122,7 +122,8 @@
             "apiVersion": "2019-03-01",
             "name": "SQL-deploy",
             "dependsOn": [
-                "[variables('sqlConfig').sqlRG]"
+                "[variables('sqlConfig').sqlRG]",
+                "network-deploy"
             ],
             "resourceGroup": "[variables('sqlConfig').sqlRG]",
             "properties": {
