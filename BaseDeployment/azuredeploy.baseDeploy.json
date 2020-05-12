@@ -8,18 +8,40 @@
                 "description": "Customer name environment is created for"
             }
         },
-        "adminUserName": {
+        "location": {
             "type": "string",
             "metadata": {
-                "description": "admin username of the VM"
+                "description": "The Azure location to deploy all resources"
+            },
+            "defaultValue": "EastUS2"
+        },
+        "_artifactsLocation": {
+            "type": "string",
+            "metadata": {
+                "description": "Path to the repository or storage account where the linked templates can be found"
+            },
+            "defaultValue": "https://raw.githubusercontent.com/erkup/networking/"
+        },
+        "virtualNetworkRG": {
+            "type": "string",
+            "metadata": {
+                "description": "The resource group name to deploy the virtual network"
+            },
+            "defaultValue": "network-rg"
+        },
+        "resourceTags": {
+            "type": "object",
+            "defaultValue": {
+                "Demo": "FakeCustomer",
+                "Tag2": "Example"
             }
         },
-        "adminPassword": {
-            "type": "securestring",
-            "minLength": 8,
+        "custVnet": {
+            "type": "string",
             "metadata": {
-                "description": "admin password for VM"
-            }
+                "description": "The name for the virtual network"
+            },
+            "defaultValue": "Cust-Vnet"
         },
         "custVnetAddrSpace": {
             "type": "string",
@@ -28,12 +50,26 @@
             },
             "defaultValue": "10.0.0.0/16"
         },
+        "dataSubnet": {
+            "type": "string",
+            "metadata": {
+                "description": "The name for the trusted subnet"
+            },
+            "defaultValue": "data-snet"
+        },
         "dataSubnetPrefix": {
             "type": "string",
             "metadata": {
                 "description": "The prefix for the data subnet"
             },
             "defaultValue": "10.0.0.0/24"
+        },
+        "ediSubnet": {
+            "type": "string",
+            "metadata": {
+                "description": "The name for the EDI subnet"
+            },
+            "defaultValue": "edi-snet"
         },
         "ediSubnetPrefix": {
             "type": "string",
@@ -42,6 +78,13 @@
             },
             "defaultValue": "10.0.1.0/24"
         },
+        "rdsSubnet": {
+            "type": "string",
+            "metadata": {
+                "description": "The name for the RDS subnet"
+            },
+            "defaultValue": "rds-snet"
+        },
         "rdsSubnetPrefix": {
             "type": "string",
             "metadata": {
@@ -49,171 +92,94 @@
             },
             "defaultValue": "10.0.2.0/24"
         },
+        "webSubnet": {
+            "type": "string",
+            "metadata": {
+                "description": "The name for the web subnet"
+            },
+            "defaultValue": "web-snet"
+        },
         "webSubnetPrefix": {
             "type": "string",
             "metadata": {
                 "description": "The prefix for the web subnet"
             },
             "defaultValue": "10.0.3.0/24"
+        },
+        "nsgName": {
+            "type": "string",
+            "defaultValue": "Base-NSG"
         }
+
     },
     "variables": {
-        "location": "EastUS2",
-        "_artifactsLocation": "https://raw.githubusercontent.com/erkup/networking/reduceParametersAddReadme/",
-        "resourceTags": {
-            "Demo": "FakeCustomer",
-            "Tag2": "Example"
-        },
-        "networkSettings": {
-            "virtualNetworkRG": "[concat(parameters('custName'),'-network-rg')]",
-            "networkTemplateUri": "[uri(variables('_artifactsLocation'), concat('nestedVnetDeploy/azuredeploy.network.json'))]",
-            "custVnet": "[concat(parameters('custName'), '-vnet')]",
-            "dataSubnet": "[concat(parameters('custName'), 'data-snet')]",
-            "ediSubnet": "[concat(parameters('custName'), 'edi-snet')]",
-            "rdsSubnet": "[concat(parameters('custName'), 'rds-snet')]",
-            "webSubnet": "[concat(parameters('custName'), 'web-snet')]",
-            "nsgName": "[concat(parameters('custName'), '-Base-NSG')]"
-        },
-        "sqlConfig": {
-            "sqlTemplateUri": "[uri(variables('_artifactsLocation'), concat('vmDeploy/azuredeploy.sql.json'))]",
-            "sqlRG": "[concat(parameters('custName'), '-sql-rg')]",
-            "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('networkSettings').dataSubnet, variables('networkSettings').dataSubnet)]",
-            "dataDisksLuns": "[array(range(0 ,variables('dbSizeMedium').sqlDataDiskCount))]",
-            "logDisksLuns": "[array(range(variables('dbSizeMedium').sqlDataDiskCount, variables('dbSizeMedium').sqlLogDiskCount))]",
-            "dataDisks": {
-                "createOption": "empty",
-                "caching": "ReadOnly",
-                "writeAcceleratorEnabled": false,
-                "storageAccountType": "Premium_LRS",
-                "diskSizeGB": 1023
-            }
-        },
-        "dbSizeMedium": {
-            "virtualMachineSize": "Standard_DS13_v2",
-            "numberOfVms": 2,
-            "sqlDataDiskCount": 2,
-            "sqlLogDiskCount": 2
-        },
-        "machineSettings": {
-            "adminUsername": "[parameters('adminUserName')]",
-            "adminPassword": "[parameters('adminPassword')]"
-        }
+        "virtualNetworkRGName": "[concat(parameters('custName'),'-',parameters('virtualNetworkRG'))]",
+        "networkTemplateUri": "[uri(parameters('_artifactsLocation'), concat('master/nestedVnetDeploy/azuredeploy.network.json'))]"
     },
-
     "resources": [
         {
             "type": "Microsoft.Resources/resourceGroups",
             "apiVersion": "2019-10-01",
-            "location": "[variables('location')]",
-            "name": "[variables('networkSettings').virtualNetworkRG]",
-            "tags": "[variables('resourceTags')]",
-            "properties": {
-            }
-        },
-        {
-            "type": "Microsoft.Resources/resourceGroups",
-            "apiVersion": "2019-10-01",
-            "location": "[variables('location')]",
-            "name": "[variables('sqlConfig').sqlRG]",
-            "tags": "[variables('resourceTags')]",
+            "location": "[parameters('location')]",
+            "name": "[variables('virtualNetworkRGName')]",
+            "tags": "[parameters('resourceTags')]",
             "properties": {
             }
         },
         {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-03-01",
-            "name": "SQL-deploy",
+            "name": "networking-deploy",
             "dependsOn": [
-                "[variables('sqlConfig').sqlRG]"
+                "[variables('virtualNetworkRGName')]"
             ],
-            "resourceGroup": "[variables('sqlConfig').sqlRG]",
+            "resourceGroup": "[variables('virtualNetworkRGName')]",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "[variables('sqlConfig').sqlTemplateUri]",
+                    "uri": "[variables('networkTemplateUri')]",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
-                    "custName":{
-                        "value":"[parameters('custName')]"
+                    "custName": {
+                        "value": "[parameters('custName')]"
                     },
-                    "subnetRef": {
-                        "value": "[variables('sqlConfig').subnetRef]"
-                    },
-                    "virtualMachineSize": {
-                        "value": "[variables('dbSizeMedium').virtualMachineSize]"
-                    },
-                    "sqlDataDisksCount": {
-                        "value": "[variables('dbSizeMedium').sqlDataDiskCount]"
-                    },
-                    "sqlLogDisksCount": {
-                        "value": "[variables('dbSizeMedium').sqlLogDiskCount]"
-                    },
-                    "dataDisks": {
-                        "value": "[variables('sqlConfig').dataDisks]"
-                    },
-                    "adminUsername": {
-                        "value": "[variables('machineSettings').adminUsername]"
-                    },
-                    "adminPassword": {
-                        "value":"[variables('machineSettings').adminPassword]"
-                    },
-                    "dataDisksLUNs":"[variables('sqlConfig').dataDisksLuns]",
-                    "logDisksLuns":"[variables('sqlConfig').logDisksLuns]"
-                }
-            }
-        },
-        {
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2019-03-01",
-            "name": "network-deploy",
-            "dependsOn": [
-                "[variables('networkSettings').virtualNetworkRG]"
-            ],
-            "resourceGroup": "[variables('networkSettings').virtualNetworkRG]",
-            "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "[variables('networkSettings').networkTemplateUri]",
-                    "contentVersion": "1.0.0.0"
-                },
-                               "parameters": {
                     "custVnet": {
-                        "value": "[variables('networkSettings').custVnet]"
+                        "value": "[parameters('custVnet')]"
                     },
                     "custVnetAddrSpace": {
                         "value": "[parameters('custVnetAddrSpace')]"
                     },
                     "dataSubnet": {
-                        "value": "[variables('networkSettings').dataSubnet]"
+                        "value": "[parameters('dataSubnet')]"
                     },
                     "dataSubnetPrefix": {
                         "value": "[parameters('dataSubnetPrefix')]"
                     },
                     "ediSubnet": {
-                        "value": "[variables('networkSettings').ediSubnet]"
+                        "value": "[parameters('ediSubnet')]"
                     },
                     "ediSubnetPrefix": {
                         "value": "[parameters('ediSubnetPrefix')]"
                     },
                     "rdsSubnet": {
-                        "value": "[variables('networkSettings').rdsSubnet]"
+                        "value": "[parameters('rdsSubnet')]"
                     },
                     "rdsSubnetPrefix": {
                         "value": "[parameters('rdsSubnetPrefix')]"
                     },
                     "webSubnet": {
-                        "value": "[variables('networkSettings').webSubnet]"
+                        "value":"[parameters('webSubnet')]"
                     },
                     "webSubnetPrefix": {
                         "value": "[parameters('webSubnetPrefix')]"
                     },
                     "nsgName": {
-                        "value": "[variables('networkSettings').nsgName]"
+                        "value": "[parameters('nsgName')]"
                     }
                 }
             }
-        }       
+        }
     ],
     "outputs": {
     }
