@@ -8,6 +8,7 @@
                 "description": "Customer name environment is created for"
             }
         },
+        
         "adminUserName": {
             "type": "string",
             "metadata": {
@@ -55,6 +56,18 @@
                 "description": "The prefix for the web subnet"
             },
             "defaultValue": "10.0.3.0/24"
+        },
+        "deploymentSize": {
+            "type": "string",
+            "allowedValues": [
+                "Small",
+                "Medium",
+                "Large"
+            ],
+            "defaultValue": "Small",
+            "metadata": {
+                "description": "The general size of the deployed resources"
+            }
         }
     },
     "variables": {
@@ -75,25 +88,10 @@
             "nsgName": "[concat(parameters('custName'), '-Base-NSG')]"
         },
         "sqlConfig": {
-            "sqlTemplateUri": "[uri(variables('_artifactsLocation'), concat('vmDeploy/azuredeploy.sql.json'))]",
-            "sqlRG": "[concat(parameters('custName'), '-sql-rg')]",
-            "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('networkSettings').dataSubnet, variables('networkSettings').dataSubnet)]",
-            "dataDisksLuns": "[array(range(0 ,variables('dbSizeMedium').sqlDataDiskCount))]",
-            "logDisksLuns": "[array(range(variables('dbSizeMedium').sqlDataDiskCount, variables('dbSizeMedium').sqlLogDiskCount))]",
-            "dataDisks": {
-                "createOption": "empty",
-                "caching": "ReadOnly",
-                "writeAcceleratorEnabled": false,
-                "storageAccountType": "Premium_LRS",
-                "diskSizeGB": 1023
-            }
+            "sqlTemplateUri": "[uri(variables('_artifactsLocation'), concat('vmDeploy/azureDeploy.sql.json'))]",
+            "sqlRG": "[concat(parameters('custName'), '-sql-rg')]"
         },
-        "dbSizeMedium": {
-            "virtualMachineSize": "Standard_DS13_v2",
-            "numberOfVms": 2,
-            "sqlDataDiskCount": 2,
-            "sqlLogDiskCount": 2
-        },
+
         "machineSettings": {
             "adminUsername": "[parameters('adminUserName')]",
             "adminPassword": "[parameters('adminPassword')]"
@@ -137,29 +135,15 @@
                     "custName":{
                         "value":"[parameters('custName')]"
                     },
-                    "subnetRef": {
-                        "value": "[variables('sqlConfig').subnetRef]"
-                    },
-                    "virtualMachineSize": {
-                        "value": "[variables('dbSizeMedium').virtualMachineSize]"
-                    },
-                    "sqlDataDisksCount": {
-                        "value": "[variables('dbSizeMedium').sqlDataDiskCount]"
-                    },
-                    "sqlLogDisksCount": {
-                        "value": "[variables('dbSizeMedium').sqlLogDiskCount]"
-                    },
-                    "dataDisks": {
-                        "value": "[variables('sqlConfig').dataDisks]"
+                    "deploymentSize": {
+                        "value": "[parameters('deploymentSize')]"
                     },
                     "adminUsername": {
                         "value": "[variables('machineSettings').adminUsername]"
                     },
                     "adminPassword": {
                         "value":"[variables('machineSettings').adminPassword]"
-                    },
-                    "dataDisksLUNs":"[variables('sqlConfig').dataDisksLuns]",
-                    "logDisksLuns":"[variables('sqlConfig').logDisksLuns]"
+                    }
                 }
             }
         },
