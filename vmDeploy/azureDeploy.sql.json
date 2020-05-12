@@ -5,37 +5,19 @@
     "custName": {
       "type": "string"
     },
+    "deploymentSize": {
+      "type": "string"
+    },
     "subnetRef": {
-      "type": "string"
-    },
-    "virtualMachineSize": {
-      "type": "string"
-    },
-    "sqlDataDisksCount": {
-      "type": "string"
-    },
-    "sqlLogDisksCount": {
-      "type": "string"
-    },
-    "dataDisks": {
       "type": "string"
     },
     "adminUsername": {
       "type": "string"
     },
     "adminPassword": {
-      "type": "string"
-    },
-    "dataDisksLUNs": {
-      "type": "string"
-    },
-    "logDisksLuns": {
-      "type": "string"
+      "type": "securestring"
     }
-
   },
-  "functions": [
-  ],
   "variables": {
     "sqlVmName": "[concat(parameters('custName'),'-sql')]",
     "networkInterfaceName": "[concat(parameters('custName'), '-nic')]",
@@ -44,7 +26,24 @@
     "tempDbPath": "D:\\SQLTemp",
     "logPath": "G:\\SQLLog",
     "imageOffer": "SQL2017-WS2016",
-    "sqlSku": "Enterprise"
+    "sqlSku": "Enterprise",
+    "virtualMachineSize": "Standard_DS13_v2",
+    "dataDisks": {
+      "createOption": "empty",
+      "caching": "ReadOnly",
+      "writeAcceleratorEnabled": false,
+      "storageAccountType": "Premium_LRS",
+      "diskSizeGB": 1023
+    },
+    "deploymentSize":"[concat('dbSize',parameters('deploymentSize'))]",
+    "dbSizeSmall": {
+      "virtualMachineSize": "Standard_DS13_v2",
+      "numberOfVms": 2,
+      "sqlDataDiskCount": 2,
+      "sqlLogDiskCount": 2
+    },
+    "dataDisksLuns": "[array(range(0 ,variables('dbSizeSmall').sqlDataDiskCount))]",
+    "logDisksLuns": "[array(range(variables('dbSizeSmall').sqlDataDiskCount, variables('dbSizeSmall').sqlLogDiskCount))]"
   },
   "resources": [
     {
@@ -79,7 +78,7 @@
       ],
       "properties": {
         "hardwareProfile": {
-          "vmSize": "[parameters('virtualMachineSize')]"
+          "vmSize": "[variables('virtualMachineSize')]"
         },
         "storageProfile": {
           "osDisk": {
@@ -97,15 +96,15 @@
           "copy": [
             {
               "name": "dataDisks",
-              "count": "[add(parameters('sqlDataDisksCount'), parameters('sqlLogDisksCount'))]",
+              "count": "[add(variables('dbSizeSmall').sqlDataDiskCount, variables('dbSizeSmall').sqlLogDiskCount)]",
               "input": {
                 "lun": "[copyIndex('dataDisks')]",
-                "createOption": "[parameters('dataDisks').createOption]",
-                "caching": "[if(greaterOrEquals(copyIndex('dataDisks'), parameters('sqlDataDisksCount')) ,'None', parameters('dataDisks').caching )]",
-                "writeAcceleratorEnabled": "[parameters('dataDisks').writeAcceleratorEnabled]",
-                "diskSizeGB": "[parameters('dataDisks').diskSizeGB]",
+                "createOption": "[variables('dataDisks').createOption]",
+                "caching": "[if(greaterOrEquals(copyIndex('dataDisks'), variables('dbSizeSmall').sqlDataDiskCount) ,'None', variables('dataDisks').caching )]",
+                "writeAcceleratorEnabled": "[variables('dataDisks').writeAcceleratorEnabled]",
+                "diskSizeGB": "[variables('dataDisks').diskSizeGB]",
                 "managedDisk": {
-                  "storageAccountType": "[parameters('dataDisks').storageAccountType]"
+                  "storageAccountType": "[variables('dataDisks').storageAccountType]"
                 }
               }
             }
@@ -145,11 +144,11 @@
           "DiskConfigurationType": "NEW",
           "StorageWorkloadType": "[variables('storageWorkloadType')]",
           "SQLDataSettings": {
-            "LUNs": "[parameters('dataDisksLUNs')]",
+            "LUNs": "[variables('dataDisksLUNs')]",
             "DefaultFilePath": "[variables('dataPath')]"
           },
           "SQLLogSettings": {
-            "Luns": "[parameters('logDisksLUNs')]",
+            "Luns": "[variables('logDisksLUNs')]",
             "DefaultFilePath": "[variables('logPath')]"
           },
           "SQLTempDbSettings": {
