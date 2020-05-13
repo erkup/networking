@@ -72,7 +72,7 @@
     },
     "variables": {
         "location": "EastUS2",
-        "_artifactsLocation": "https://raw.githubusercontent.com/erkup/networking/reduceParametersAddReadme/",
+        "_artifactsLocation": "https://raw.githubusercontent.com/erkup/networking/addEdiServer/",
         "resourceTags": {
             "Demo": "FakeCustomer",
             "Tag2": "Example"
