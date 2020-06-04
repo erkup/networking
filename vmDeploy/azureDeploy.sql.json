@@ -17,7 +17,7 @@
   },
   "variables": {
     "sqlVmName": "Sql-VM",
-    "networkInterfaceName": "-nic')]",
+    "networkInterfaceName": "[concat(variables('sqlVmName'),'-nic')]",
     "storageWorkloadType": "General",
     "dataPath": "F:\\SQLData",
     "tempDbPath": "D:\\SQLTemp",
