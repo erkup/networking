@@ -105,6 +105,7 @@
         },
         "storageProfile": {
           "osDisk": {
+            "name": "[concat(variables('ediVmName'),copyIndex(),'-OSDisk')]",
             "createOption": "fromImage",
             "managedDisk": {
               "storageAccountType": "Premium_LRS"
@@ -121,6 +122,7 @@
               "name": "dataDisks",
               "count": "[variables('ediSizeSmall').ediDataDiskCount]",
               "input": {
+                "name":"[concat(variables('ediVmName'),copyIndex('VM-Loop'),'-datadisk',copyIndex('dataDisks'))]",
                 "lun": "[copyIndex('dataDisks')]",
                 "createOption": "[variables('dataDisks').createOption]",
                 "caching": "[if(greaterOrEquals(copyIndex('dataDisks'), variables('ediSizeSmall').ediDataDiskCount) ,'None', variables('dataDisks').caching )]",
