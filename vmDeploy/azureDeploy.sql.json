@@ -16,13 +16,13 @@
     }
   },
   "variables": {
-    "sqlVmName": "[concat(parameters('custName'),'-sql')]",
-    "networkInterfaceName": "[concat(parameters('custName'), '-nic')]",
+    "sqlVmName": "Sql-VM",
+    "networkInterfaceName": "-nic')]",
     "storageWorkloadType": "General",
     "dataPath": "F:\\SQLData",
     "tempDbPath": "D:\\SQLTemp",
     "logPath": "G:\\SQLLog",
-    "imageOffer": "SQL2017-WS2016",
+    "imageOffer": "sql2019-ws2019",
     "sqlSku": "Enterprise",
     "virtualMachineSize": "Standard_DS13_v2",
     "dataDisks": {
@@ -34,10 +34,9 @@
     },
     "deploymentSize":"[concat('dbSize',parameters('deploymentSize'))]",
     "dbSizeSmall": {
-      "virtualMachineSize": "Standard_DS13_v2",
-      "numberOfVms": 2,
-      "sqlDataDiskCount": 2,
-      "sqlLogDiskCount": 2
+      "virtualMachineSize": "Standard_E16-8s_v3",
+      "sqlDataDiskCount": 1,
+      "sqlLogDiskCount": 1
     },
     "dataDisksLuns": "[array(range(0 ,variables('dbSizeSmall').sqlDataDiskCount))]",
     "logDisksLuns": "[array(range(variables('dbSizeSmall').sqlDataDiskCount, variables('dbSizeSmall').sqlLogDiskCount))]", 
