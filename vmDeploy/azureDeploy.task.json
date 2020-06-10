@@ -1,0 +1,131 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "custName": {
+      "type": "string"
+    },
+    "deploymentSize": {
+      "type": "string"
+    },
+    "adminUsername": {
+      "type": "string"
+    },
+    "adminPassword": {
+      "type": "securestring"
+    }
+  },
+  "variables": {
+    "taskVmName": "task-VM",
+    "availabilitySetName": "task-AS",
+    "networkInterfaceName": "[concat(variables('taskVmName'), '-nic')]",
+    "imageOffer": "WindowsServer",
+    "taskSku": "2019-Datacenter",
+    "taskSizeSmall": {
+      "virtualMachineSize": "Standard_DS2_v2 ",
+      "numberOfVms": 4
+    },
+    "custVnet": "[concat(parameters('custName'),'-vnet')]",
+    "custNetworkRG": "[concat(parameters('custName'),'-network-rg')]",
+    "custSubnet": "[concat(parameters('custName'),'data-snet')]",
+    "subnetRef": "[resourceId(variables('custNetworkRG'),'Microsoft.Network/virtualNetworks/subnets',variables('custVnet'),variables('custSubnet'))]"
+  },
+  "resources": [
+    {
+      "name": "[variables('availabilitySetName')]",
+      "type": "Microsoft.Compute/availabilitySets",
+      "apiVersion": "2019-07-01",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "displayName": "[variables('availabilitySetName')]"
+      },
+      "sku": {
+        "name": "Aligned"
+      },
+      "properties": {
+        "platformFaultDomainCount": 2,
+        "platformUpdateDomainCount": 2
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2018-10-01",
+      "name": "[concat(variables('networkInterfaceName'),copyIndex())]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+      ],
+      "copy": {
+        "name": "NIC-Loop",
+        "count": "[variables('taskSizeSmall').numberOfVms]"
+      },
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "subnet": {
+                "id": "[variables('subnetRef')]"
+              },
+              "privateIPAllocationMethod": "Dynamic"
+            }
+          }
+        ],
+        "enableAcceleratedNetworking": true
+      }
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2018-10-01",
+      "name": "[concat(variables('taskVmName'),copyIndex())]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/networkInterfaces/', variables('networkInterfaceName'),copyIndex())]"
+      ],
+      "copy": {
+        "name": "VM-Loop",
+        "count": "[variables('taskSizeSmall').numberOfVms]"
+      },
+      "properties": {
+        "availabilitySet":{
+          "id":"[resourceId('Microsoft.Compute/availabilitySets',variables('availabilitySetName'))]"
+        },
+        "hardwareProfile": {
+          "vmSize": "[variables('taskSizeSmall').virtualMachineSize]"
+        },
+        "storageProfile": {
+          "osDisk": {
+            "name": "[concat(variables('taskVmName'),copyIndex(),'-OSDisk')]",
+            "createOption": "fromImage",
+            "managedDisk": {
+              "storageAccountType": "StandardSSD_LRS"
+            }
+          },
+          "imageReference": {
+            "publisher": "MicrosoftWindowsServer",
+            "offer": "[variables('imageOffer')]",
+            "sku": "[variables('taskSku')]",
+            "version": "latest"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces',concat(variables('networkInterfaceName'),copyIndex()))]"
+            }
+          ]
+        },
+        "osProfile": {
+          "computerName": "[variables('taskVmName')]",
+          "adminUsername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]",
+          "windowsConfiguration": {
+            "enableAutomaticUpdates": true,
+            "provisionVmAgent": true
+          }
+        }
+      }
+    }
+  ],
+  "outputs": {
+  }
+}
