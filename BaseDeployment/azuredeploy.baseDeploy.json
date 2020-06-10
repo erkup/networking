@@ -97,7 +97,7 @@
         },
          "taskConfig": {
             "taskTemplateUri": "[uri(variables('_artifactsLocation'), concat('vmDeploy/azureDeploy.task.json'))]",
-            "taskRG": "[concat(parameters('custName'), '-iis-rg')]"
+            "taskRG": "[concat(parameters('custName'), '-task-rg')]"
         },
         "machineSettings": {
             "adminUsername": "[parameters('adminUserName')]",
