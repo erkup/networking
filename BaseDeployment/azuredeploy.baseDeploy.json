@@ -8,7 +8,7 @@
                 "description": "Customer name environment is created for"
             }
         },
-        
+
         "adminUserName": {
             "type": "string",
             "metadata": {
@@ -95,6 +95,10 @@
             "ediTemplateUri": "[uri(variables('_artifactsLocation'), concat('vmDeploy/azureDeploy.edi.json'))]",
             "ediRG": "[concat(parameters('custName'), '-edi-rg')]"
         },
+        "iisConfig": {
+            "iisTemplateUri": "[uri(variables('_artifactsLocation'), concat('vmDeploy/azureDeploy.iis.json'))]",
+            "iisRG": "[concat(parameters('custName'), '-iis-rg')]"
+        },
         "machineSettings": {
             "adminUsername": "[parameters('adminUserName')]",
             "adminPassword": "[parameters('adminPassword')]"
@@ -120,33 +124,33 @@
             "properties": {
             }
         },
-                {
+        {
             "type": "Microsoft.Resources/resourceGroups",
             "apiVersion": "2019-10-01",
             "location": "[variables('location')]",
-            "name": "[variables('ediConfig').ediRG]",
+            "name": "[variables('iisConfig').iisRG]",
             "tags": "[variables('resourceTags')]",
             "properties": {
             }
         },
-                {
+        {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-03-01",
-            "name": "EDI-deploy",
+            "name": "IIS-deploy",
             "dependsOn": [
-                "[variables('ediConfig').ediRG]",
+                "[variables('iisConfig').iisRG]",
                 "network-deploy"
             ],
-            "resourceGroup": "[variables('ediConfig').ediRG]",
+            "resourceGroup": "[variables('iisConfig').iisRG]",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "[variables('ediConfig').ediTemplateUri]",
+                    "uri": "[variables('iisConfig').iisTemplateUri]",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
-                    "custName":{
-                        "value":"[parameters('custName')]"
+                    "custName": {
+                        "value": "[parameters('custName')]"
                     },
                     "deploymentSize": {
                         "value": "[parameters('deploymentSize')]"
@@ -155,7 +159,7 @@
                         "value": "[variables('machineSettings').adminUsername]"
                     },
                     "adminPassword": {
-                        "value":"[variables('machineSettings').adminPassword]"
+                        "value": "[variables('machineSettings').adminPassword]"
                     }
                 }
             }
@@ -176,8 +180,8 @@
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
-                    "custName":{
-                        "value":"[parameters('custName')]"
+                    "custName": {
+                        "value": "[parameters('custName')]"
                     },
                     "deploymentSize": {
                         "value": "[parameters('deploymentSize')]"
@@ -186,7 +190,7 @@
                         "value": "[variables('machineSettings').adminUsername]"
                     },
                     "adminPassword": {
-                        "value":"[variables('machineSettings').adminPassword]"
+                        "value": "[variables('machineSettings').adminPassword]"
                     }
                 }
             }
@@ -205,7 +209,7 @@
                     "uri": "[variables('networkSettings').networkTemplateUri]",
                     "contentVersion": "1.0.0.0"
                 },
-                               "parameters": {
+                "parameters": {
                     "custVnet": {
                         "value": "[variables('networkSettings').custVnet]"
                     },
@@ -241,7 +245,7 @@
                     }
                 }
             }
-        }       
+        }
     ],
     "outputs": {
     }
