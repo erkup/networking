@@ -22,7 +22,7 @@
     "imageOffer": "WindowsServer",
     "taskSku": "2019-Datacenter",
     "taskSizeSmall": {
-      "virtualMachineSize": "Standard_DS2_v2 ",
+      "virtualMachineSize": "Standard_DS2_v2",
       "numberOfVms": 4
     },
     "custVnet": "[concat(parameters('custName'),'-vnet')]",
