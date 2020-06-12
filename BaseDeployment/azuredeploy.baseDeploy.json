@@ -72,7 +72,7 @@
     },
     "variables": {
         "location": "EastUS2",
-        "_artifactsLocation": "https://raw.githubusercontent.com/erkup/networking/add-adSvr/",
+        "_artifactsLocation": "https://raw.githubusercontent.com/erkup/networking/master/",
         "resourceTags": {
             "Demo": "FakeCustomer",
             "Tag2": "Example"
