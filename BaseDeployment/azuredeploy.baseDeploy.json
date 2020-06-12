@@ -99,6 +99,10 @@
             "taskTemplateUri": "[uri(variables('_artifactsLocation'), concat('vmDeploy/azureDeploy.task.json'))]",
             "taskRG": "[concat(parameters('custName'), '-task-rg')]"
         },
+        "rdshConfig": {
+            "rdshTemplateUri": "[uri(variables('_artifactsLocation'), concat('vmDeploy/azureDeploy.rdsh.json'))]",
+            "rdshRG": "[concat(parameters('custName'), '-rdsh-rg')]"
+        },
         "machineSettings": {
             "adminUsername": "[parameters('adminUserName')]",
             "adminPassword": "[parameters('adminPassword')]"
@@ -142,6 +146,15 @@
             "properties": {
             }
         },
+                        {
+            "type": "Microsoft.Resources/resourceGroups",
+            "apiVersion": "2019-10-01",
+            "location": "[variables('location')]",
+            "name": "[variables('rdshConfig').rdshRG]",
+            "tags": "[variables('resourceTags')]",
+            "properties": {
+            }
+        },
         {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-03-01",
@@ -155,6 +168,37 @@
                 "mode": "Incremental",
                 "templateLink": {
                     "uri": "[variables('taskConfig').taskTemplateUri]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "custName": {
+                        "value": "[parameters('custName')]"
+                    },
+                    "deploymentSize": {
+                        "value": "[parameters('deploymentSize')]"
+                    },
+                    "adminUsername": {
+                        "value": "[variables('machineSettings').adminUsername]"
+                    },
+                    "adminPassword": {
+                        "value": "[variables('machineSettings').adminPassword]"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-03-01",
+            "name": "Task-deploy",
+            "dependsOn": [
+                "[variables('rdshConfig').rdshRG]",
+                "network-deploy"
+            ],
+            "resourceGroup": "[variables('rdshConfig').rdshRG]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('rdshConfig').rdshTemplateUri]",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
