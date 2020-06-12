@@ -72,7 +72,7 @@
     },
     "variables": {
         "location": "EastUS2",
-        "_artifactsLocation": "https://raw.githubusercontent.com/erkup/networking/master/",
+        "_artifactsLocation": "https://raw.githubusercontent.com/erkup/networking/add-adSvr/",
         "resourceTags": {
             "Demo": "FakeCustomer",
             "Tag2": "Example"
@@ -95,13 +95,17 @@
             "iisTemplateUri": "[uri(variables('_artifactsLocation'), concat('vmDeploy/azureDeploy.iis.json'))]",
             "iisRG": "[concat(parameters('custName'), '-iis-rg')]"
         },
-         "taskConfig": {
+        "taskConfig": {
             "taskTemplateUri": "[uri(variables('_artifactsLocation'), concat('vmDeploy/azureDeploy.task.json'))]",
             "taskRG": "[concat(parameters('custName'), '-task-rg')]"
         },
         "rdshConfig": {
             "rdshTemplateUri": "[uri(variables('_artifactsLocation'), concat('vmDeploy/azureDeploy.rdsh.json'))]",
             "rdshRG": "[concat(parameters('custName'), '-rdsh-rg')]"
+        },
+        "adConfig": {
+            "adTemplateUri": "[uri(variables('_artifactsLocation'), concat('vmDeploy/azureDeploy.ad.json'))]",
+            "adRG": "[concat(parameters('custName'), '-ad-rg')]"
         },
         "machineSettings": {
             "adminUsername": "[parameters('adminUserName')]",
@@ -137,7 +141,7 @@
             "properties": {
             }
         },
-                {
+        {
             "type": "Microsoft.Resources/resourceGroups",
             "apiVersion": "2019-10-01",
             "location": "[variables('location')]",
@@ -146,13 +150,53 @@
             "properties": {
             }
         },
-                        {
+        {
             "type": "Microsoft.Resources/resourceGroups",
             "apiVersion": "2019-10-01",
             "location": "[variables('location')]",
             "name": "[variables('rdshConfig').rdshRG]",
             "tags": "[variables('resourceTags')]",
             "properties": {
+            }
+        },
+                {
+            "type": "Microsoft.Resources/resourceGroups",
+            "apiVersion": "2019-10-01",
+            "location": "[variables('location')]",
+            "name": "[variables('adConfig').adRG]",
+            "tags": "[variables('resourceTags')]",
+            "properties": {
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-03-01",
+            "name": "AD-Svr-deploy",
+            "dependsOn": [
+                "[variables('taskConfig').taskRG]",
+                "network-deploy"
+            ],
+            "resourceGroup": "[variables('taskConfig').taskRG]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('taskConfig').taskTemplateUri]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "custName": {
+                        "value": "[parameters('custName')]"
+                    },
+                    "deploymentSize": {
+                        "value": "[parameters('deploymentSize')]"
+                    },
+                    "adminUsername": {
+                        "value": "[variables('machineSettings').adminUsername]"
+                    },
+                    "adminPassword": {
+                        "value": "[variables('machineSettings').adminPassword]"
+                    }
+                }
             }
         },
         {
