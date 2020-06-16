@@ -37,7 +37,7 @@
     "dataDisksLuns": "[array(range(0 ,variables('fileSizeSmall').fileDataDiskCount))]",
     "custVnet": "[concat(parameters('custName'),'-vnet')]",
     "custNetworkRG": "[concat(parameters('custName'),'-network-rg')]",
-    "custSubnet": "[concat(parameters('custName'),'file-snet')]",
+    "custSubnet": "[concat(parameters('custName'),'data-snet')]",
     "subnetRef": "[resourceId(variables('custNetworkRG'),'Microsoft.Network/virtualNetworks/subnets',variables('custVnet'),variables('custSubnet'))]"
   },
   "resources": [
