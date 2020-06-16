@@ -1,0 +1,159 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "custName": {
+      "type": "string"
+    },
+    "deploymentSize": {
+      "type": "string"
+    },
+    "adminUsername": {
+      "type": "string"
+    },
+    "adminPassword": {
+      "type": "securestring"
+    }
+  },
+  "variables": {
+    "fileVmName": "bcfile",
+    "availabilitySetName": "file-AS",
+    "networkInterfaceName": "[concat(variables('fileVmName'), '-nic')]",
+    "imageOffer": "WindowsServer",
+    "fileSku": "2019-Datacenter",
+    "dataDisks": {
+      "createOption": "empty",
+      "caching": "ReadOnly",
+      "writeAcceleratorEnabled": false,
+      "storageAccountType": "StandardSSD_LRS",
+      "diskSizeGB": 2048
+    },
+    "deploymentSize": "[concat('dbSize',parameters('deploymentSize'))]",
+    "fileSizeSmall": {
+      "virtualMachineSize": "Standard_DS3_v2",
+      "numberOfVms": 1,
+      "fileDataDiskCount": 1
+    },
+    "dataDisksLuns": "[array(range(0 ,variables('fileSizeSmall').fileDataDiskCount))]",
+    "custVnet": "[concat(parameters('custName'),'-vnet')]",
+    "custNetworkRG": "[concat(parameters('custName'),'-network-rg')]",
+    "custSubnet": "[concat(parameters('custName'),'file-snet')]",
+    "subnetRef": "[resourceId(variables('custNetworkRG'),'Microsoft.Network/virtualNetworks/subnets',variables('custVnet'),variables('custSubnet'))]"
+  },
+  "resources": [
+    {
+      "name": "[variables('availabilitySetName')]",
+      "type": "Microsoft.Compute/availabilitySets",
+      "apiVersion": "2019-07-01",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "displayName": "[variables('availabilitySetName')]"
+      },
+      "sku": {
+        "name": "Aligned"
+      },
+      "properties": {
+        "platformFaultDomainCount": 2,
+        "platformUpdateDomainCount": 2
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2018-10-01",
+      "name": "[concat(variables('networkInterfaceName'),copyIndex())]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[variables('availabilitySetName')]"
+      ],
+      "copy": {
+        "name": "NIC-Loop",
+        "count": "[variables('fileSizeSmall').numberOfVms]"
+      },
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "subnet": {
+                "id": "[variables('subnetRef')]"
+              },
+              "privateIPAllocationMethod": "Dynamic"
+            }
+          }
+        ],
+        "enableAcceleratedNetworking": true
+      }
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2018-10-01",
+      "name": "[concat(variables('fileVmName'),copyIndex())]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/networkInterfaces/', variables('networkInterfaceName'),copyIndex())]"
+      ],
+      "copy": {
+        "name":"VM-Loop",
+        "count":"[variables('fileSizeSmall').numberOfVms]"
+      },
+      "properties": {
+        "availabilitySet":{
+          "id":"[resourceId('Microsoft.Compute/availabilitySets',variables('availabilitySetName'))]"
+        },
+        "hardwareProfile": {
+          "vmSize": "[variables('fileSizeSmall').virtualMachineSize]"
+        },
+        "storageProfile": {
+          "osDisk": {
+            "name": "[concat(variables('fileVmName'),copyIndex(),'-OSDisk')]",
+            "createOption": "fromImage",
+            "managedDisk": {
+              "storageAccountType": "Premium_LRS"
+            }
+          },
+          "imageReference": {
+            "publisher": "MicrosoftWindowsServer",
+            "offer": "[variables('imageOffer')]",
+            "sku": "[variables('fileSku')]",
+            "version": "latest"
+          },
+          "copy": [
+            {
+              "name": "dataDisks",
+              "count": "[variables('fileSizeSmall').fileDataDiskCount]",
+              "input": {
+                "name":"[concat(variables('fileVmName'),copyIndex('VM-Loop'),'-datadisk',copyIndex('dataDisks'))]",
+                "lun": "[copyIndex('dataDisks')]",
+                "createOption": "[variables('dataDisks').createOption]",
+                "caching": "[if(greaterOrEquals(copyIndex('dataDisks'), variables('fileSizeSmall').fileDataDiskCount) ,'None', variables('dataDisks').caching )]",
+                "writeAcceleratorEnabled": "[variables('dataDisks').writeAcceleratorEnabled]",
+                "diskSizeGB": "[variables('dataDisks').diskSizeGB]",
+                "managedDisk": {
+                  "storageAccountType": "[variables('dataDisks').storageAccountType]"
+                }
+              }
+            }
+          ]
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces',concat(variables('networkInterfaceName'),copyIndex()))]"
+            }
+          ]
+        },
+        "osProfile": {
+          "computerName": "[variables('fileVmName')]",
+          "adminUsername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]",
+          "windowsConfiguration": {
+            "enableAutomaticUpdates": true,
+            "provisionVmAgent": true
+          }
+        }
+      }
+    }
+  ],
+  "outputs": {
+  }
+}
