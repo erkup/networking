@@ -59,7 +59,7 @@
         }
     },
     "variables": {
-        "location": "EastUS2",
+        "location": "centralUS",
         "_artifactsLocation": "https://raw.githubusercontent.com/erkup/networking/add-storage/",
         "resourceTags": {
             "Demo": "FakeCustomer",
@@ -100,7 +100,7 @@
             "fileRG": "[concat(parameters('custName'), '-file-rg')]"
         },
         "storageConfig": {
-            "storageTemplateUri": "[uri(variables('_artifactsLocation'), concat('miscDeploy/azureDeploy.storage.json'))]",
+            "storageTemplateUri": "[uri(variables('_artifactsLocation'), concat('miscDeploy/azuredeploy.storage.json'))]",
             "storageRG": "[concat(parameters('custName'), '-storage-rg')]"
         },
         "machineSettings": {
@@ -205,14 +205,14 @@
             "apiVersion": "2019-03-01",
             "name": "AD-Svr-deploy",
             "dependsOn": [
-                "[variables('taskConfig').taskRG]",
+                "[variables('adConfig').adRG]",
                 "network-deploy"
             ],
-            "resourceGroup": "[variables('taskConfig').taskRG]",
+            "resourceGroup": "[variables('adConfig').adRG]",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "[variables('taskConfig').taskTemplateUri]",
+                    "uri": "[variables('adConfig').adTemplateUri]",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
