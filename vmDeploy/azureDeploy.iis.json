@@ -5,9 +5,6 @@
     "custName": {
       "type": "string"
     },
-    "deploymentSize": {
-      "type": "string"
-    },
     "adminUsername": {
       "type": "string"
     },
@@ -16,7 +13,7 @@
     }
   },
   "variables": {
-    "iisVmName": "IIS-VM",
+    "iisVmName": "bciis0",
     "networkInterfaceName": "[concat(variables('iisVmName'), '-nic')]",
     "imageOffer": "WindowsServer",
     "iisSku": "2019-Datacenter",
@@ -33,7 +30,7 @@
     {
       "type": "Microsoft.Network/networkInterfaces",
       "apiVersion": "2018-10-01",
-      "name": "[concat(variables('networkInterfaceName'),copyIndex())]",
+      "name": "[concat(variables('networkInterfaceName'),copyIndex(1))]",
       "location": "[resourceGroup().location]",
       "dependsOn": [
       ],
@@ -59,10 +56,10 @@
     {
       "type": "Microsoft.Compute/virtualMachines",
       "apiVersion": "2018-10-01",
-      "name": "[concat(variables('iisVmName'),copyIndex())]",
+      "name": "[concat(variables('iisVmName'),copyIndex(1))]",
       "location": "[resourceGroup().location]",
       "dependsOn": [
-        "[concat('Microsoft.Network/networkInterfaces/', variables('networkInterfaceName'),copyIndex())]"
+        "[concat('Microsoft.Network/networkInterfaces/', variables('networkInterfaceName'),copyIndex(1))]"
       ],
       "copy": {
         "name": "VM-Loop",
@@ -74,7 +71,7 @@
         },
         "storageProfile": {
           "osDisk": {
-            "name": "[concat(variables('iisVmName'),copyIndex(),'-OSDisk')]",
+            "name": "[concat(variables('iisVmName'),copyIndex(1),'-OSDisk')]",
             "createOption": "fromImage",
             "managedDisk": {
               "storageAccountType": "StandardSSD_LRS"
@@ -90,7 +87,7 @@
         "networkProfile": {
           "networkInterfaces": [
             {
-              "id": "[resourceId('Microsoft.Network/networkInterfaces',concat(variables('networkInterfaceName'),copyIndex()))]"
+              "id": "[resourceId('Microsoft.Network/networkInterfaces',concat(variables('networkInterfaceName'),copyIndex(1)))]"
             }
           ]
         },

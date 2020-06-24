@@ -5,9 +5,6 @@
     "custName": {
       "type": "string"
     },
-    "deploymentSize": {
-      "type": "string"
-    },
     "adminUsername": {
       "type": "string"
     },
@@ -16,7 +13,7 @@
     }
   },
   "variables": {
-    "rdshVmName": "rdsh-VM",
+    "rdshVmName": "bcts0",
     "availabilitySetName": "rdsh-AS",
     "networkInterfaceName": "[concat(variables('rdshVmName'), '-nic')]",
     "imageOffer": "WindowsServer",
@@ -50,7 +47,7 @@
     {
       "type": "Microsoft.Network/networkInterfaces",
       "apiVersion": "2018-10-01",
-      "name": "[concat(variables('networkInterfaceName'),copyIndex())]",
+      "name": "[concat(variables('networkInterfaceName'),copyIndex(1))]",
       "location": "[resourceGroup().location]",
       "dependsOn": [
       ],
@@ -76,10 +73,10 @@
     {
       "type": "Microsoft.Compute/virtualMachines",
       "apiVersion": "2018-10-01",
-      "name": "[concat(variables('rdshVmName'),copyIndex())]",
+      "name": "[concat(variables('rdshVmName'),copyIndex(1))]",
       "location": "[resourceGroup().location]",
       "dependsOn": [
-        "[concat('Microsoft.Network/networkInterfaces/', variables('networkInterfaceName'),copyIndex())]"
+        "[concat('Microsoft.Network/networkInterfaces/', variables('networkInterfaceName'),copyIndex(1))]"
       ],
       "copy": {
         "name": "VM-Loop",
@@ -94,7 +91,7 @@
         },
         "storageProfile": {
           "osDisk": {
-            "name": "[concat(variables('rdshVmName'),copyIndex(),'-OSDisk')]",
+            "name": "[concat(variables('rdshVmName'),copyIndex(1),'-OSDisk')]",
             "createOption": "fromImage",
             "managedDisk": {
               "storageAccountType": "StandardSSD_LRS"
@@ -110,7 +107,7 @@
         "networkProfile": {
           "networkInterfaces": [
             {
-              "id": "[resourceId('Microsoft.Network/networkInterfaces',concat(variables('networkInterfaceName'),copyIndex()))]"
+              "id": "[resourceId('Microsoft.Network/networkInterfaces',concat(variables('networkInterfaceName'),copyIndex(1)))]"
             }
           ]
         },

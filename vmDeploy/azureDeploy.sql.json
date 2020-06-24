@@ -5,9 +5,6 @@
     "custName": {
       "type": "string"
     },
-    "deploymentSize": {
-      "type": "string"
-    },
     "adminUsername": {
       "type": "string"
     },
@@ -16,7 +13,7 @@
     }
   },
   "variables": {
-    "sqlVmName": "Sql-VM",
+    "sqlVmName": "BC-Sql01",
     "networkInterfaceName": "[concat(variables('sqlVmName'),'-nic')]",
     "storageWorkloadType": "General",
     "dataPath": "F:\\SQLData",
