@@ -197,17 +197,7 @@
                     "uri": "[variables('storageConfig').storageTemplateUri]",
                     "contentVersion": "1.0.0.0"
                 },
-                "parameters": {
-                    "custName": {
-                        "value": "[parameters('custName')]"
-                    },
-                    "adminUsername": {
-                        "value": "[variables('machineSettings').adminUsername]"
-                    },
-                    "adminPassword": {
-                        "value": "[variables('machineSettings').adminPassword]"
-                    }
-                }
+                "parameters": {}
             }
         },
         {

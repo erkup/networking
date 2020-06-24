@@ -29,7 +29,6 @@
       "storageAccountType": "Premium_LRS",
       "diskSizeGB": 1023
     },
-    "deploymentSize":"[concat('dbSize',parameters('deploymentSize'))]",
     "dbSizeSmall": {
       "virtualMachineSize": "Standard_E16-8s_v3",
       "sqlDataDiskCount": 1,

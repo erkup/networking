@@ -5,9 +5,6 @@
     "custName": {
       "type": "string"
     },
-    "deploymentSize": {
-      "type": "string"
-    },
     "adminUsername": {
       "type": "string"
     },
@@ -28,7 +25,6 @@
       "storageAccountType": "Premium_LRS",
       "diskSizeGB": 1023
     },
-    "deploymentSize": "[concat('dbSize',parameters('deploymentSize'))]",
     "ediSizeSmall": {
       "virtualMachineSize": "Standard_D4s_v3",
       "numberOfVms": 2,
