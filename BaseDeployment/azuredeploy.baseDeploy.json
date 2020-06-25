@@ -60,7 +60,7 @@
     },
     "variables": {
         "location": "centralUS",
-        "_artifactsLocation": "https://raw.githubusercontent.com/erkup/networking/add-storage/",
+        "_artifactsLocation": "https://raw.githubusercontent.com/erkup/networking/master/",
         "resourceTags": {
             "Demo": "FakeCustomer",
             "Tag2": "Example"
