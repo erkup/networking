@@ -21,9 +21,9 @@
       "virtualMachineSize": "Standard_DS2_v2",
       "numberOfVms": 1
     },
-    "custVnet": "[concat(parameters('custName'),'-vnet')]",
-    "custNetworkRG": "[concat(parameters('custName'),'-network-rg')]",
-    "custSubnet": "[concat(parameters('custName'),'data-snet')]",
+    "custVnet": "[concat(parameters('custName'),'_network')]",
+    "custNetworkRG": "network-rg",
+    "custSubnet": "idenSubnet",
     "subnetRef": "[resourceId(variables('custNetworkRG'),'Microsoft.Network/virtualNetworks/subnets',variables('custVnet'),variables('custSubnet'))]"
   },
   "resources": [

@@ -31,28 +31,12 @@
       "fileDataDiskCount": 1
     },
     "dataDisksLuns": "[array(range(0 ,variables('fileSizeSmall').fileDataDiskCount))]",
-    "custVnet": "[concat(parameters('custName'),'-vnet')]",
-    "custNetworkRG": "[concat(parameters('custName'),'-network-rg')]",
-    "custSubnet": "[concat(parameters('custName'),'data-snet')]",
+    "custVnet": "[concat(parameters('custName'),'_network')]",
+    "custNetworkRG": "network-rg'",
+    "custSubnet": "data_net",
     "subnetRef": "[resourceId(variables('custNetworkRG'),'Microsoft.Network/virtualNetworks/subnets',variables('custVnet'),variables('custSubnet'))]"
   },
   "resources": [
-    {
-      "name": "[variables('availabilitySetName')]",
-      "type": "Microsoft.Compute/availabilitySets",
-      "apiVersion": "2019-07-01",
-      "location": "[resourceGroup().location]",
-      "tags": {
-        "displayName": "[variables('availabilitySetName')]"
-      },
-      "sku": {
-        "name": "Aligned"
-      },
-      "properties": {
-        "platformFaultDomainCount": 2,
-        "platformUpdateDomainCount": 2
-      }
-    },
     {
       "type": "Microsoft.Network/networkInterfaces",
       "apiVersion": "2018-10-01",
@@ -93,9 +77,6 @@
         "count":"[variables('fileSizeSmall').numberOfVms]"
       },
       "properties": {
-        "availabilitySet":{
-          "id":"[resourceId('Microsoft.Compute/availabilitySets',variables('availabilitySetName'))]"
-        },
         "hardwareProfile": {
           "vmSize": "[variables('fileSizeSmall').virtualMachineSize]"
         },
