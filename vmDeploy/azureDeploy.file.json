@@ -14,7 +14,6 @@
   },
   "variables": {
     "fileVmName": "bcfile0",
-    "availabilitySetName": "file-AS",
     "networkInterfaceName": "[concat(variables('fileVmName'), '-nic')]",
     "imageOffer": "WindowsServer",
     "fileSku": "2019-Datacenter",

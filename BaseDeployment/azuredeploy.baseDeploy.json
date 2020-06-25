@@ -47,7 +47,7 @@
         },
         "networkSettings": {
             "virtualNetworkRG": "network-rg",
-            "networkTemplateUri": "[uri(variables('_artifactsLocation'), concat('nestedVnetDeploy/azuredeploy.network.json'))]"
+            "networkTemplateUri": "[uri(variables('_artifactsLocation'), concat('nestedVnetDeploy/azuredeploy.network2.json'))]"
         },
         "sqlConfig": {
             "sqlTemplateUri": "[uri(variables('_artifactsLocation'), concat('vmDeploy/azureDeploy.sql.json'))]",
@@ -63,7 +63,7 @@
         },
         "rdshConfig": {
             "rdshTemplateUri": "[uri(variables('_artifactsLocation'), concat('vmDeploy/azureDeploy.rdsh.json'))]",
-            "rdshRG": "rdsh-rg"
+            "rdshRG": "rds-rg"
         },
         "adConfig": {
             "adTemplateUri": "[uri(variables('_artifactsLocation'), concat('vmDeploy/azureDeploy.ad.json'))]",
@@ -97,16 +97,7 @@
             "type": "Microsoft.Resources/resourceGroups",
             "apiVersion": "2019-10-01",
             "location": "[variables('location')]",
-            "name": "[variables('sqlConfig').sqlRG]",
-            "tags": "[variables('resourceTags')]",
-            "properties": {
-            }
-        },
-        {
-            "type": "Microsoft.Resources/resourceGroups",
-            "apiVersion": "2019-10-01",
-            "location": "[variables('location')]",
-            "name": "[variables('iisConfig').iisRG]",
+            "name": "bluecherry",
             "tags": "[variables('resourceTags')]",
             "properties": {
             }
@@ -139,29 +130,11 @@
             }
         },
         {
-            "type": "Microsoft.Resources/resourceGroups",
-            "apiVersion": "2019-10-01",
-            "location": "[variables('location')]",
-            "name": "[variables('fileConfig').fileRG]",
-            "tags": "[variables('resourceTags')]",
-            "properties": {
-            }
-        },
-        {
-            "type": "Microsoft.Resources/resourceGroups",
-            "apiVersion": "2019-10-01",
-            "location": "[variables('location')]",
-            "name": "[variables('storageConfig').storageRG]",
-            "tags": "[variables('resourceTags')]",
-            "properties": {
-            }
-        },
-        {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-03-01",
             "name": "Storage-deploy",
             "dependsOn": [
-                "[variables('storageConfig').storageRG]",
+                "bluecherry",
                 "network-deploy"
             ],
             "resourceGroup": "[variables('storageConfig').storageRG]",
@@ -207,7 +180,7 @@
             "apiVersion": "2019-03-01",
             "name": "FileSvr-deploy",
             "dependsOn": [
-                "[variables('fileConfig').fileRG]",
+                "bluecherry",
                 "network-deploy"
             ],
             "resourceGroup": "[variables('fileConfig').fileRG]",
@@ -292,7 +265,7 @@
             "apiVersion": "2019-03-01",
             "name": "IIS-deploy",
             "dependsOn": [
-                "[variables('iisConfig').iisRG]",
+                "bluecherry",
                 "network-deploy"
             ],
             "resourceGroup": "[variables('iisConfig').iisRG]",
@@ -320,7 +293,7 @@
             "apiVersion": "2019-03-01",
             "name": "SQL-deploy",
             "dependsOn": [
-                "[variables('sqlConfig').sqlRG]",
+                "bluecherry",
                 "network-deploy"
             ],
             "resourceGroup": "[variables('sqlConfig').sqlRG]",
