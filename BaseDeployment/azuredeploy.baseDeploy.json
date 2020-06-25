@@ -5,10 +5,24 @@
         "custName": {
             "type": "string",
             "metadata": {
-                "description": "Customer name environment is created for"
+                "description": "Name of customer"
             }
         },
-
+        "Cost_ClientTag": {
+            "type": "string"
+        },
+        "Cost_DivisionTag": {
+            "type": "string"
+        },
+        "Cost_LOBTag": {
+            "type": "string"
+        },
+        "vnetPrefix": {
+            "type": "string",
+            "metadata": {
+                "description": "Second octet of the Vnet 172.xx.0.0/16"
+            }
+        },
         "adminUserName": {
             "type": "string",
             "metadata": {
@@ -21,87 +35,48 @@
             "metadata": {
                 "description": "admin password for VM"
             }
-        },
-        "custVnetAddrSpace": {
-            "type": "string",
-            "metadata": {
-                "description": "The prefix for the HUB virtual network"
-            },
-            "defaultValue": "10.0.0.0/16"
-        },
-        "dataSubnetPrefix": {
-            "type": "string",
-            "metadata": {
-                "description": "The prefix for the data subnet"
-            },
-            "defaultValue": "10.0.0.0/24"
-        },
-        "ediSubnetPrefix": {
-            "type": "string",
-            "metadata": {
-                "description": "The prefix for the EDI subnet"
-            },
-            "defaultValue": "10.0.1.0/24"
-        },
-        "rdsSubnetPrefix": {
-            "type": "string",
-            "metadata": {
-                "description": "The prefix for the RDS subnet"
-            },
-            "defaultValue": "10.0.2.0/24"
-        },
-        "webSubnetPrefix": {
-            "type": "string",
-            "metadata": {
-                "description": "The prefix for the web subnet"
-            },
-            "defaultValue": "10.0.3.0/24"
         }
     },
     "variables": {
-        "location": "centralUS",
+        "location": "eastUS",
         "_artifactsLocation": "https://raw.githubusercontent.com/erkup/networking/master/",
         "resourceTags": {
-            "Demo": "FakeCustomer",
-            "Tag2": "Example"
+            "Cost_ClientTag": "[parameters('Cost_ClientTag')]",
+            "Cost_DivisionTag": "[parameters('Cost_DivisionTag')]",
+            "Cost_LOBTag":"[parameters('Cost_LOBTag')]", 
+            "Demo": "deployment"
         },
         "networkSettings": {
-            "virtualNetworkRG": "[concat(parameters('custName'),'-network-rg')]",
-            "networkTemplateUri": "[uri(variables('_artifactsLocation'), concat('nestedVnetDeploy/azuredeploy.network.json'))]",
-            "custVnet": "[concat(parameters('custName'), '-vnet')]",
-            "dataSubnet": "[concat(parameters('custName'), 'data-snet')]",
-            "ediSubnet": "[concat(parameters('custName'), 'edi-snet')]",
-            "rdsSubnet": "[concat(parameters('custName'), 'rds-snet')]",
-            "webSubnet": "[concat(parameters('custName'), 'web-snet')]",
-            "nsgName": "[concat(parameters('custName'), '-Base-NSG')]"
+            "virtualNetworkRG": "network-rg",
+            "networkTemplateUri": "[uri(variables('_artifactsLocation'), concat('nestedVnetDeploy/azuredeploy.network2.json'))]"
         },
         "sqlConfig": {
             "sqlTemplateUri": "[uri(variables('_artifactsLocation'), concat('vmDeploy/azureDeploy.sql.json'))]",
-            "sqlRG": "[concat(parameters('custName'), '-sql-rg')]"
+            "sqlRG": "bluecherry"
         },
         "iisConfig": {
             "iisTemplateUri": "[uri(variables('_artifactsLocation'), concat('vmDeploy/azureDeploy.iis.json'))]",
-            "iisRG": "[concat(parameters('custName'), '-iis-rg')]"
+            "iisRG": "bluecherry"
         },
         "taskConfig": {
             "taskTemplateUri": "[uri(variables('_artifactsLocation'), concat('vmDeploy/azureDeploy.task.json'))]",
-            "taskRG": "[concat(parameters('custName'), '-task-rg')]"
+            "taskRG": "task-rg"
         },
         "rdshConfig": {
             "rdshTemplateUri": "[uri(variables('_artifactsLocation'), concat('vmDeploy/azureDeploy.rdsh.json'))]",
-            "rdshRG": "[concat(parameters('custName'), '-rdsh-rg')]"
+            "rdshRG": "rds-rg"
         },
         "adConfig": {
             "adTemplateUri": "[uri(variables('_artifactsLocation'), concat('vmDeploy/azureDeploy.ad.json'))]",
-            "adRG": "[concat(parameters('custName'), '-ad-rg')]"
+            "adRG": "ad-rg"
         },
         "fileConfig": {
             "fileTemplateUri": "[uri(variables('_artifactsLocation'), concat('vmDeploy/azureDeploy.file.json'))]",
-            "fileRG": "[concat(parameters('custName'), '-file-rg')]"
+            "fileRG": "bluecherry"
         },
         "storageConfig": {
             "storageTemplateUri": "[uri(variables('_artifactsLocation'), concat('miscDeploy/azuredeploy.storage.json'))]",
-            "storageRG": "[concat(parameters('custName'), '-storage-rg')]"
+            "storageRG": "bluecherry"
         },
         "machineSettings": {
             "adminUsername": "[parameters('adminUserName')]",
@@ -123,16 +98,7 @@
             "type": "Microsoft.Resources/resourceGroups",
             "apiVersion": "2019-10-01",
             "location": "[variables('location')]",
-            "name": "[variables('sqlConfig').sqlRG]",
-            "tags": "[variables('resourceTags')]",
-            "properties": {
-            }
-        },
-        {
-            "type": "Microsoft.Resources/resourceGroups",
-            "apiVersion": "2019-10-01",
-            "location": "[variables('location')]",
-            "name": "[variables('iisConfig').iisRG]",
+            "name": "bluecherry",
             "tags": "[variables('resourceTags')]",
             "properties": {
             }
@@ -165,29 +131,11 @@
             }
         },
         {
-            "type": "Microsoft.Resources/resourceGroups",
-            "apiVersion": "2019-10-01",
-            "location": "[variables('location')]",
-            "name": "[variables('fileConfig').fileRG]",
-            "tags": "[variables('resourceTags')]",
-            "properties": {
-            }
-        },
-        {
-            "type": "Microsoft.Resources/resourceGroups",
-            "apiVersion": "2019-10-01",
-            "location": "[variables('location')]",
-            "name": "[variables('storageConfig').storageRG]",
-            "tags": "[variables('resourceTags')]",
-            "properties": {
-            }
-        },
-                {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-03-01",
             "name": "Storage-deploy",
             "dependsOn": [
-                "[variables('storageConfig').storageRG]",
+                "bluecherry",
                 "network-deploy"
             ],
             "resourceGroup": "[variables('storageConfig').storageRG]",
@@ -233,7 +181,7 @@
             "apiVersion": "2019-03-01",
             "name": "FileSvr-deploy",
             "dependsOn": [
-                "[variables('fileConfig').fileRG]",
+                "bluecherry",
                 "network-deploy"
             ],
             "resourceGroup": "[variables('fileConfig').fileRG]",
@@ -318,7 +266,7 @@
             "apiVersion": "2019-03-01",
             "name": "IIS-deploy",
             "dependsOn": [
-                "[variables('iisConfig').iisRG]",
+                "bluecherry",
                 "network-deploy"
             ],
             "resourceGroup": "[variables('iisConfig').iisRG]",
@@ -346,7 +294,7 @@
             "apiVersion": "2019-03-01",
             "name": "SQL-deploy",
             "dependsOn": [
-                "[variables('sqlConfig').sqlRG]",
+                "bluecherry",
                 "network-deploy"
             ],
             "resourceGroup": "[variables('sqlConfig').sqlRG]",
@@ -384,38 +332,14 @@
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
-                    "custVnet": {
-                        "value": "[variables('networkSettings').custVnet]"
+                    "vnetPrefix": {
+                        "value": "[parameters('vnetPrefix')]"
                     },
-                    "custVnetAddrSpace": {
-                        "value": "[parameters('custVnetAddrSpace')]"
+                    "custName": {
+                        "value": "[parameters('custName')]"
                     },
-                    "dataSubnet": {
-                        "value": "[variables('networkSettings').dataSubnet]"
-                    },
-                    "dataSubnetPrefix": {
-                        "value": "[parameters('dataSubnetPrefix')]"
-                    },
-                    "ediSubnet": {
-                        "value": "[variables('networkSettings').ediSubnet]"
-                    },
-                    "ediSubnetPrefix": {
-                        "value": "[parameters('ediSubnetPrefix')]"
-                    },
-                    "rdsSubnet": {
-                        "value": "[variables('networkSettings').rdsSubnet]"
-                    },
-                    "rdsSubnetPrefix": {
-                        "value": "[parameters('rdsSubnetPrefix')]"
-                    },
-                    "webSubnet": {
-                        "value": "[variables('networkSettings').webSubnet]"
-                    },
-                    "webSubnetPrefix": {
-                        "value": "[parameters('webSubnetPrefix')]"
-                    },
-                    "nsgName": {
-                        "value": "[variables('networkSettings').nsgName]"
+                    "resourceTags":{
+                        "value": "[variables('resourceTags')]"
                     }
                 }
             }

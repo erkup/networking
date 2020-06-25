@@ -1,0 +1,2118 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "custName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of customer"
+            }
+        },
+        "ResourceTags": {
+            "type": "object"
+        },
+        "vnetPrefix": {
+            "type": "string",
+            "metadata": {
+                "description": "Second octet of the Vnet 172.xx.0.0/16"
+            }
+        }
+    },
+    "variables": {
+        "vnetName": "[concat(parameters('custName'),'_network')]",
+        "vnetAddressSpace": "[concat('172.',parameters('vnetPrefix'),'.0.0/16')]",
+        "idenSubnet": "[concat('172.',parameters('vnetPrefix'),'.10.0/24')]",
+        "mgmtSubnet": "[concat('172.',parameters('vnetPrefix'),'.20.0/24')]",
+        "dataSubnet": "[concat('172.',parameters('vnetPrefix'),'.30.0/24')]",
+        "apiSubnet": "[concat('172.',parameters('vnetPrefix'),'.40.0/24')]",
+        "ediSubnet": "[concat('172.',parameters('vnetPrefix'),'.50.0/24')]",
+        "solSubnet": "[concat('172.',parameters('vnetPrefix'),'.60.0/24')]",
+        "leadSubnet": "[concat('172.',parameters('vnetPrefix'),'.70.0/24')]",
+        "rdsSubnet": "[concat('172.',parameters('vnetPrefix'),'.80.0/24')]",
+        "webSubnet": "[concat('172.',parameters('vnetPrefix'),'.90.0/24')]",
+        "dmzSubnet": "[concat('172.',parameters('vnetPrefix'),'.100.0/24')]",
+        "gwSubnet": "[concat('172.',parameters('vnetPrefix'),'.0.0/24')]",
+        "AD-IN": {
+            "destinationPortRanges": [
+                "53",
+                "88",
+                "135",
+                "137",
+                "138",
+                "139",
+                "389",
+                "636",
+                "3268",
+                "3269",
+                "9389",
+                "49152-65535"
+            ]
+        },
+        "file-IN": {
+            "destinationPortRanges": [
+                "445",
+                "500",
+                "4500"
+            ]
+        },
+        "APP_SQL-IN": {
+            "destinationPortRanges": [
+                "1433",
+                "1434",
+                "4022",
+                "5022",
+                "3343"
+            ]
+        }
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2020-04-01",
+            "name": "API_NSG",
+            "location": "eastus",
+            "tags": {
+            },
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "APIM_Port_443",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "443",
+                            "destinationPortRange": "443",
+                            "sourceAddressPrefix": "40.114.74.22",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 500,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": [
+                            ],
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "APIM_Port_80",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "80",
+                            "destinationPortRange": "80",
+                            "sourceAddressPrefix": "40.114.74.22",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 505,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": [
+                            ],
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "AD-IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 200,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": "[variables('AD-IN').destinationPortRanges]",
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "FILE-IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 205,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": "[variables('file-IN').destinationPortRanges]",
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "APP_SQL-IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 210,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": "[variables('APP_SQL-IN').destinationPortRanges]",
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "KASEYA_5721_IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "5721",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 215,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": [
+                            ],
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "PWRSHELL_MGMT-IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "5985-5986",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 220,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": [
+                            ],
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "ICMP_IN",
+                        "properties": {
+                            "protocol": "Icmp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "*",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 225,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": [
+                            ],
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2020-04-01",
+            "name": "DATA_NSG",
+            "location": "eastus",
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "AD-IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 200,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": "[variables('AD-IN').destinationPortRanges]",
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "FILE-IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 205,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": "[variables('file-IN').destinationPortRanges]",
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "APP_SQL-IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 210,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": "[variables('APP_SQL-IN').destinationPortRanges]",
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "KASEYA_5721_IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "5721",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 215,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": [
+                            ],
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "PWRSHELL_MGMT-IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "5985-5986",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 220,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": [
+                            ],
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "ICMP_IN",
+                        "properties": {
+                            "protocol": "Icmp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "*",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 225,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": [
+                            ],
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "PRINTING-IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 500,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": [
+                                "515",
+                                "9100-9102",
+                                "721-731"
+                            ],
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "THIN_PRINT-IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "4000-4001",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 505,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": [
+                            ],
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "HTTP-IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "80",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 510,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": [
+                            ],
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "HTTPS-IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "443",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 515,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": [
+                            ],
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "APP_SL-IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "4712-4713",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 520,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": [
+                            ],
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "APP_AX-IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 525,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": [
+                                "2712",
+                                "8101",
+                                "8201"
+                            ],
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "APP_MONGO",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "27017",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 530,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": [
+                            ],
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "RDP-IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "3389",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 535,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": [
+                            ],
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "DENY-ALL",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "*",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Deny",
+                            "priority": 1000,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": [
+                            ],
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2020-04-01",
+            "name": "DMZ_NSG",
+            "location": "eastus",
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "AD-IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 200,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": "[variables('AD-IN').destinationPortRanges]",
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "FILE-IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 205,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": "[variables('file-IN').destinationPortRanges]",
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "APP_SQL-IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 210,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": "[variables('APP_SQL-IN').destinationPortRanges]",
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "KASEYA_5721_IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "5721",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 215,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": [
+                            ],
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "PWRSHELL_MGMT-IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "5985-5986",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 220,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": [
+                            ],
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "ICMP_IN",
+                        "properties": {
+                            "protocol": "Icmp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "*",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 225,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": [
+                            ],
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2020-04-01",
+            "name": "EDI_NSG",
+            "location": "eastus",
+            "tags": {
+            },
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "AD-IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 200,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": "[variables('AD-IN').destinationPortRanges]",
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "FILE-IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 205,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": "[variables('file-IN').destinationPortRanges]",
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "APP_SQL-IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 210,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": "[variables('APP_SQL-IN').destinationPortRanges]",
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "KASEYA_5721_IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "5721",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 215,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": [
+                            ],
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "PWRSHELL_MGMT-IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "5985-5986",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 220,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": [
+                            ],
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "DENY-ALL",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "*",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Deny",
+                            "priority": 1000,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": [
+                            ],
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "PORT_5080-IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "5080",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 500,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": [
+                            ],
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "PORT_8080-IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "8080",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 505,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": [
+                            ],
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "HTTP-IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "80",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 510,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": [
+                            ],
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "HTTPS-IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "443",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 515,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": [
+                            ],
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "ICMP_IN",
+                        "properties": {
+                            "protocol": "ICMP",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "*",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 225,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": [
+                            ],
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2020-04-01",
+            "name": "IDENTITY_NSG",
+            "location": "eastus",
+            "tags": {
+            },
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "AD-IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 200,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": "[variables('AD-IN').destinationPortRanges]",
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "FILE-IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 205,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": "[variables('file-IN').destinationPortRanges]",
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "APP_SQL-IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 210,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": "[variables('APP_SQL-IN').destinationPortRanges]",
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "KASEYA_5721_IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "5721",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 215,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": [
+                            ],
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "PWRSHELL_MGMT-IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "5985-5986",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 220,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": [
+                            ],
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "ICMP_IN",
+                        "properties": {
+                            "protocol": "Icmp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "*",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 225,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": [
+                            ],
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2020-04-01",
+            "name": "LEADTEC_NSG",
+            "location": "eastus",
+            "tags": {
+            },
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "AD-IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 200,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": "[variables('AD-IN').destinationPortRanges]",
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "FILE-IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 205,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": "[variables('file-IN').destinationPortRanges]",
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "APP_SQL-IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 210,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": "[variables('APP_SQL-IN').destinationPortRanges]",
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "KASEYA_5721_IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "5721",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 215,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": [
+                            ],
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "PWRSHELL_MGMT-IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "5985-5986",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 220,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": [
+                            ],
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "ICMP_IN",
+                        "properties": {
+                            "protocol": "Icmp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "*",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 225,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": [
+                            ],
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2020-04-01",
+            "name": "MGMT_NSG",
+            "location": "eastus",
+            "tags": {
+            },
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "AD-IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 200,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": "[variables('AD-IN').destinationPortRanges]",
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "FILE-IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 205,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": "[variables('file-IN').destinationPortRanges]",
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "APP_SQL-IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 210,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": "[variables('APP_SQL-IN').destinationPortRanges]",
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "KASEYA_5721_IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "5721",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 215,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": [
+                            ],
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "PWRSHELL_MGMT-IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "5985-5986",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 220,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": [
+                            ],
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "ICMP_IN",
+                        "properties": {
+                            "protocol": "Icmp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "*",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 225,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": [
+                            ],
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2020-04-01",
+            "name": "RDS_NSG",
+            "location": "eastus",
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "KASEYA_5721_IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "5721",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 215,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": [
+                            ],
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "PWRSHELL_MGMT-IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "5985-5986",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 220,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": [
+                            ],
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "AD-IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 200,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": "[variables('AD-IN').destinationPortRanges]",
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "FILE-IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 205,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": "[variables('file-IN').destinationPortRanges]",
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "APP_SQL-IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 210,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": "[variables('APP_SQL-IN').destinationPortRanges]",
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "RDP-IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "3389",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 500,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": [
+                            ],
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "DENY-ALL",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "*",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Deny",
+                            "priority": 1000,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": [
+                            ],
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "ICMP-IN",
+                        "properties": {
+                            "protocol": "ICMP",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "*",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 225,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": [
+                            ],
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2020-04-01",
+            "name": "SOL_NSG",
+            "location": "eastus",
+            "tags": {
+            },
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "AD-IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 200,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": "[variables('AD-IN').destinationPortRanges]",
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "FILE-IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 205,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": "[variables('file-IN').destinationPortRanges]",
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "RDP-IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "3389",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 520,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": [
+                            ],
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "APP_SL-IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 500,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": [
+                                "4712",
+                                "4713"
+                            ],
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "APP_AX-IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 505,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": [
+                                "2712",
+                                "8101",
+                                "8201"
+                            ],
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "APP_SQL-IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 210,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": "[variables('APP_SQL-IN').destinationPortRanges]",
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "HTTP-IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "80",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 510,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": [
+                            ],
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "HTTPS-IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "443",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 515,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": [
+                            ],
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "deny-all",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "*",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Deny",
+                            "priority": 1000,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": [
+                            ],
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "KASEYA_5721_IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "5721",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 215,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": [
+                            ],
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "PING-IN",
+                        "properties": {
+                            "protocol": "ICMP",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "*",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 225,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": [
+                            ],
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2020-04-01",
+            "name": "WEB_NSG",
+            "location": "eastus",
+            "tags": {
+            },
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "FTP-IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "20-21",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 510,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": [
+                            ],
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "FTP-PASSIVE-IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "6000-7000",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 515,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": [
+                            ],
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "AD-IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 200,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": "[variables('AD-IN').destinationPortRanges]",
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "FILE-IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 205,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": "[variables('file-IN').destinationPortRanges]",
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "APP_SQL-IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 210,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": "[variables('APP_SQL-IN').destinationPortRanges]",
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "KASEYA_5721_IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "5721",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 215,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": [
+                            ],
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "PWRSHELL_MGMT-IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "5985-5986",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 220,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": [
+                            ],
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "ICMP_IN",
+                        "properties": {
+                            "protocol": "ICMP",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "*",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 225,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": [
+                            ],
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "HTTP-IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "80",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 500,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": [
+                            ],
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    },
+                    {
+                        "name": "HTTPS-IN",
+                        "properties": {
+                            "protocol": "*",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "443",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 505,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [
+                            ],
+                            "destinationPortRanges": [
+                            ],
+                            "sourceAddressPrefixes": [
+                            ],
+                            "destinationAddressPrefixes": [
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2020-03-01",
+            "name": "[variables('vnetName')]",
+            "location": "[resourceGroup().location]",
+            "tags": "[parameters('ResourceTags')]",
+            "dependsOn": [
+                "web_nsg",
+                "rds_nsg",
+                "IDENTITY_NSG", 
+                "data_nsg",
+                "edi_nsg",
+                "sol_nsg",
+                "dmz_nsg",
+                "leadtec_nsg",
+                "mgmt_nsg"
+
+            ],
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "[variables('vnetAddressSpace')]"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "MGMT_NET",
+                        "properties": {
+                            "addressPrefix": "[variables('mgmtSubnet')]",
+                            "delegations": [],
+                            "privateEndpointNetworkPolicies": "Enabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled",
+                            "networkSecurityGroup": {
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'MGMT_NSG')]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "IDENTITY_NET",
+                        "properties": {
+                            "addressPrefix": "[variables('idenSubnet')]",
+                            "delegations": [],
+                            "privateEndpointNetworkPolicies": "Enabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled",
+                            "networkSecurityGroup": {
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'IDENTITY_NSG')]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "DATA_NET",
+                        "properties": {
+                            "addressPrefix": "[variables('dataSubnet')]",
+                            "delegations": [],
+                            "privateEndpointNetworkPolicies": "Enabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled",
+                            "networkSecurityGroup": {
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'DATA_NSG')]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "EDI_NET",
+                        "properties": {
+                            "addressPrefix": "[variables('ediSubnet')]",
+                            "delegations": [],
+                            "privateEndpointNetworkPolicies": "Enabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled",
+                            "networkSecurityGroup": {
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'EDI_NSG')]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "SOL_NET",
+                        "properties": {
+                            "addressPrefix": "[variables('solSubnet')]",
+                            "delegations": [],
+                            "privateEndpointNetworkPolicies": "Enabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled",
+                            "networkSecurityGroup": {
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'SOL_NSG')]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "RDS_NET",
+                        "properties": {
+                            "addressPrefix": "[variables('rdsSubnet')]",
+                            "delegations": [],
+                            "privateEndpointNetworkPolicies": "Enabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled",
+                            "networkSecurityGroup": {
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'RDS_NSG')]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "WEB_NET",
+                        "properties": {
+                            "addressPrefix": "[variables('webSubnet')]",
+                            "delegations": [],
+                            "privateEndpointNetworkPolicies": "Enabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled",
+                            "networkSecurityGroup": {
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'WEB_NSG')]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "API_NET",
+                        "properties": {
+                            "addressPrefix": "[variables('apiSubnet')]",
+                            "delegations": [],
+                            "privateEndpointNetworkPolicies": "Enabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled",
+                            "networkSecurityGroup": {
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'API_NSG')]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "LEADTEC_NET",
+                        "properties": {
+                            "addressPrefix": "[variables('leadSubnet')]",
+                            "delegations": [],
+                            "privateEndpointNetworkPolicies": "Enabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled",
+                            "networkSecurityGroup": {
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'LEADTEC_NSG')]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "DMZ_NET",
+                        "properties": {
+                            "addressPrefix": "[variables('dmzSubnet')]",
+                            "delegations": [],
+                            "privateEndpointNetworkPolicies": "Enabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled",
+                            "networkSecurityGroup": {
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'DMZ_NSG')]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "GatewaySubnet",
+                        "properties": {
+                            "addressPrefix": "[variables('gwSubnet')]",
+                            "serviceEndpoints": [],
+                            "delegations": [],
+                            "privateEndpointNetworkPolicies": "Enabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled"
+                        }
+
+                    }
+                ],
+                "virtualNetworkPeerings": [],
+                "enableDdosProtection": false,
+                "enableVmProtection": false
+            }
+        }
+    ]
+}
