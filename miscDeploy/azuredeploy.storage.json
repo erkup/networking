@@ -1,0 +1,163 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+    },
+    "functions": [
+    ],
+    "variables": {
+        "storageName": "[concat('bcstorage', uniqueString(resourceGroup().id))]",
+        "RecoveryVaultName": "BC-RecoveryServicesVault",
+        "BackupPolicyName": "dailyBackupPolicy",
+
+        "scheduleRunTimes": [
+            "23:00"
+        ],
+        // Start time of daily backup jobs for VM's (only one backup/day allowed for IaaS VM's in Azure)
+        "timeZone": "Eastern Standard Time",
+        // Any Valid timezone, for example:UTC, Pacific Standard Time. Refer: https://msdn.microsoft.com/en-us/library/gg154758.aspx
+        "instantRpRetentionRangeInDays": "2",
+        // Number of days Instant Recovery Point should be retained
+        "dailyRetentionDurationCount": "7",
+        // Number of days you want to retain the backup
+        "daysOfTheWeek": [
+            "Sunday"
+        ],
+        // Backup will run on array of Days like, Monday, Tuesday etc. Applies in Weekly retention only.
+        "weeklyRetentionDurationCount": "4",
+        // Number of weeks you want to retain the backup
+        "monthlyRetentionDurationCount": "6",
+        // Number of months you want to retain backup
+        "yearlyRetentionDurationCount": "1",
+        // Number of years you want to retain the backup
+        "monthsOfYear": [
+            "January",
+            "February",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December"
+        ]
+        // Array of Months for Yearly Retention
+    },
+    "resources": [
+        {
+            "name": "[variables('storageName')]",
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2019-06-01",
+            "tags": {
+                "displayName": "[variables('storageName')]"
+            },
+            "location": "[resourceGroup().location]",
+            "kind": "StorageV2",
+            "sku": {
+                "name": "Standard_GZRS",
+                "tier": "Standard"
+            }
+        },
+        {
+            "name": "[variables('RecoveryVaultName')]",
+            "type": "Microsoft.RecoveryServices/vaults",
+            "apiVersion": "2018-01-10",
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "RS0",
+                "tier": "Standard"
+            },
+            "properties": {
+            }
+        },
+        {
+            "type": "Microsoft.RecoveryServices/vaults/backupstorageconfig",
+            "apiVersion": "2016-12-01",
+            "name": "[concat(variables('RecoveryVaultName'), '/vaultstorageconfig')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.RecoveryServices/vaults', variables('RecoveryVaultName'))]"
+            ],
+            "properties": {
+                "storageType": "GeoRedundant"
+            }
+        },
+        {
+            "apiVersion": "2016-12-01",
+            "name": "[concat(variables('RecoveryVaultName'), '/', variables('BackupPolicyName'))]",
+            "type": "Microsoft.RecoveryServices/vaults/backupPolicies",
+            "dependsOn": [
+                "[concat('Microsoft.RecoveryServices/vaults/', variables('RecoveryVaultName'))]"
+            ],
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "backupManagementType": "AzureIaasVM",
+                "instantRpRetentionRangeInDays": "[variables('instantRpRetentionRangeInDays')]",
+                "schedulePolicy": {
+                    "scheduleRunFrequency": "Daily",
+                    "scheduleRunDays": null,
+                    "scheduleRunTimes": "[variables('scheduleRunTimes')]",
+                    "schedulePolicyType": "SimpleSchedulePolicy"
+                },
+                "retentionPolicy": {
+                    "dailySchedule": {
+                        "retentionTimes": "[variables('scheduleRunTimes')]",
+                        "retentionDuration": {
+                            "count": "[variables('dailyRetentionDurationCount')]",
+                            "durationType": "Days"
+                        }
+                    },
+                    "weeklySchedule": {
+                        "daysOfTheWeek": "[variables('daysOfTheWeek')]",
+                        "retentionTimes": "[variables('scheduleRunTimes')]",
+                        "retentionDuration": {
+                            "count": "[variables('weeklyRetentionDurationCount')]",
+                            "durationType": "Weeks"
+                        }
+                    },
+                    "monthlySchedule": {
+                        "retentionScheduleFormatType": "Daily",
+                        "retentionScheduleDaily": {
+                            "daysOfTheMonth": [
+                                {
+                                    "date": 1,
+                                    "isLast": false
+                                }
+                            ]
+                        },
+                        "retentionScheduleWeekly": null,
+                        "retentionTimes": "[variables('scheduleRunTimes')]",
+                        "retentionDuration": {
+                            "count": "[variables('monthlyRetentionDurationCount')]",
+                            "durationType": "Months"
+                        }
+                    },
+                    "yearlySchedule": {
+                        "retentionScheduleFormatType": "Daily",
+                        "monthsOfYear": "[variables('monthsOfYear')]",
+                        "retentionScheduleDaily": {
+                            "daysOfTheMonth": [
+                                {
+                                    "date": 1,
+                                    "isLast": false
+                                }
+                            ]
+                        },
+                        "retentionScheduleWeekly": null,
+                        "retentionTimes": "[variables('scheduleRunTimes')]",
+                        "retentionDuration": {
+                            "count": "[variables('yearlyRetentionDurationCount')]",
+                            "durationType": "Years"
+                        }
+                    },
+                    "retentionPolicyType": "LongTermRetentionPolicy"
+                },
+                "timeZone": "[variables('timeZone')]"
+            }
+        }
+    ],
+    "outputs": {
+    }
+}

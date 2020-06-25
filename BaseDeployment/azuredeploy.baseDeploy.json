@@ -56,22 +56,10 @@
                 "description": "The prefix for the web subnet"
             },
             "defaultValue": "10.0.3.0/24"
-        },
-        "deploymentSize": {
-            "type": "string",
-            "allowedValues": [
-                "Small",
-                "Medium",
-                "Large"
-            ],
-            "defaultValue": "Small",
-            "metadata": {
-                "description": "The general size of the deployed resources"
-            }
         }
     },
     "variables": {
-        "location": "EastUS2",
+        "location": "centralUS",
         "_artifactsLocation": "https://raw.githubusercontent.com/erkup/networking/master/",
         "resourceTags": {
             "Demo": "FakeCustomer",
@@ -110,6 +98,10 @@
         "fileConfig": {
             "fileTemplateUri": "[uri(variables('_artifactsLocation'), concat('vmDeploy/azureDeploy.file.json'))]",
             "fileRG": "[concat(parameters('custName'), '-file-rg')]"
+        },
+        "storageConfig": {
+            "storageTemplateUri": "[uri(variables('_artifactsLocation'), concat('miscDeploy/azuredeploy.storage.json'))]",
+            "storageRG": "[concat(parameters('custName'), '-storage-rg')]"
         },
         "machineSettings": {
             "adminUsername": "[parameters('adminUserName')]",
@@ -182,6 +174,33 @@
             }
         },
         {
+            "type": "Microsoft.Resources/resourceGroups",
+            "apiVersion": "2019-10-01",
+            "location": "[variables('location')]",
+            "name": "[variables('storageConfig').storageRG]",
+            "tags": "[variables('resourceTags')]",
+            "properties": {
+            }
+        },
+                {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-03-01",
+            "name": "Storage-deploy",
+            "dependsOn": [
+                "[variables('storageConfig').storageRG]",
+                "network-deploy"
+            ],
+            "resourceGroup": "[variables('storageConfig').storageRG]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('storageConfig').storageTemplateUri]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {}
+            }
+        },
+        {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-03-01",
             "name": "AD-Svr-deploy",
@@ -200,9 +219,6 @@
                     "custName": {
                         "value": "[parameters('custName')]"
                     },
-                    "deploymentSize": {
-                        "value": "[parameters('deploymentSize')]"
-                    },
                     "adminUsername": {
                         "value": "[variables('machineSettings').adminUsername]"
                     },
@@ -212,7 +228,7 @@
                 }
             }
         },
-         {
+        {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-03-01",
             "name": "FileSvr-deploy",
@@ -230,9 +246,6 @@
                 "parameters": {
                     "custName": {
                         "value": "[parameters('custName')]"
-                    },
-                    "deploymentSize": {
-                        "value": "[parameters('deploymentSize')]"
                     },
                     "adminUsername": {
                         "value": "[variables('machineSettings').adminUsername]"
@@ -262,9 +275,6 @@
                     "custName": {
                         "value": "[parameters('custName')]"
                     },
-                    "deploymentSize": {
-                        "value": "[parameters('deploymentSize')]"
-                    },
                     "adminUsername": {
                         "value": "[variables('machineSettings').adminUsername]"
                     },
@@ -274,7 +284,7 @@
                 }
             }
         },
-        
+
         {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-03-01",
@@ -293,9 +303,6 @@
                 "parameters": {
                     "custName": {
                         "value": "[parameters('custName')]"
-                    },
-                    "deploymentSize": {
-                        "value": "[parameters('deploymentSize')]"
                     },
                     "adminUsername": {
                         "value": "[variables('machineSettings').adminUsername]"
@@ -325,9 +332,6 @@
                     "custName": {
                         "value": "[parameters('custName')]"
                     },
-                    "deploymentSize": {
-                        "value": "[parameters('deploymentSize')]"
-                    },
                     "adminUsername": {
                         "value": "[variables('machineSettings').adminUsername]"
                     },
@@ -355,9 +359,6 @@
                 "parameters": {
                     "custName": {
                         "value": "[parameters('custName')]"
-                    },
-                    "deploymentSize": {
-                        "value": "[parameters('deploymentSize')]"
                     },
                     "adminUsername": {
                         "value": "[variables('machineSettings').adminUsername]"

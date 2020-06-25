@@ -5,9 +5,6 @@
     "custName": {
       "type": "string"
     },
-    "deploymentSize": {
-      "type": "string"
-    },
     "adminUsername": {
       "type": "string"
     },
@@ -16,7 +13,7 @@
     }
   },
   "variables": {
-    "sqlVmName": "Sql-VM",
+    "sqlVmName": "BC-Sql01",
     "networkInterfaceName": "[concat(variables('sqlVmName'),'-nic')]",
     "storageWorkloadType": "General",
     "dataPath": "F:\\SQLData",
@@ -32,7 +29,6 @@
       "storageAccountType": "Premium_LRS",
       "diskSizeGB": 1023
     },
-    "deploymentSize":"[concat('dbSize',parameters('deploymentSize'))]",
     "dbSizeSmall": {
       "virtualMachineSize": "Standard_E16-8s_v3",
       "sqlDataDiskCount": 1,
