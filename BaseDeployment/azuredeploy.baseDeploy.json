@@ -39,11 +39,12 @@
     },
     "variables": {
         "location": "eastUS",
-        "_artifactsLocation": "https://raw.githubusercontent.com/erkup/networking/updateNetwork/",
+        "_artifactsLocation": "https://raw.githubusercontent.com/erkup/networking/master/",
         "resourceTags": {
             "Cost_ClientTag": "[parameters('Cost_ClientTag')]",
             "Cost_DivisionTag": "[parameters('Cost_DivisionTag')]",
-            "Cost_LOBTag":"[parameters('Cost_LOBTag')]"
+            "Cost_LOBTag":"[parameters('Cost_LOBTag')]", 
+            "Demo": "deployment"
         },
         "networkSettings": {
             "virtualNetworkRG": "network-rg",
@@ -331,7 +332,7 @@
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
-                    "custVnet": {
+                    "vnetPrefix": {
                         "value": "[parameters('vnetPrefix')]"
                     },
                     "custName": {
