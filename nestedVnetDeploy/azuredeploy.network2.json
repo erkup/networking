@@ -1958,6 +1958,18 @@
             "name": "[variables('vnetName')]",
             "location": "[resourceGroup().location]",
             "tags": "[parameters('ResourceTags')]",
+            "dependsOn": [
+                "web_nsg",
+                "rds_nsg",
+                "IDENTITY_NSG", 
+                "data_nsg",
+                "edi_nsg",
+                "sol_nsg",
+                "dmz_nsg",
+                "leadtech_nsg",
+                "mgmt_nsg"
+
+            ],
             "properties": {
                 "addressSpace": {
                     "addressPrefixes": [
