@@ -23,7 +23,7 @@
     },
     "custVnet": "[concat(parameters('custName'),'_network')]",
     "custNetworkRG": "network-rg",
-    "custSubnet": "idenSubnet",
+    "custSubnet": "IDENTITY_NET",
     "subnetRef": "[resourceId(variables('custNetworkRG'),'Microsoft.Network/virtualNetworks/subnets',variables('custVnet'),variables('custSubnet'))]"
   },
   "resources": [
