@@ -23,6 +23,23 @@
                 "description": "Second octet of the Vnet 172.xx.0.0/16"
             }
         },
+        "EnvironmentSize": {
+            "type": "string",
+            "metadata": {
+                "description": "Size of the environment (small, medium, large). Will dictate the VM sizes for IIS, SQL, File"
+            },
+            "allowedValues": [
+                "Small",
+                "Medium",
+                "Large"
+            ]
+        },
+        "NumberOfTaskServers": {
+            "type": "int",
+            "metadata": {
+                "description": "Number of task servers to deploy (integer 1 - 10)"
+            }
+        },
         "adminUserName": {
             "type": "string",
             "metadata": {
@@ -39,11 +56,11 @@
     },
     "variables": {
         "location": "eastUS",
-        "_artifactsLocation": "https://raw.githubusercontent.com/erkup/networking/master/",
+        "_artifactsLocation": "https://raw.githubusercontent.com/erkup/networking/addSizeOptions/",
         "resourceTags": {
             "Cost_ClientTag": "[parameters('Cost_ClientTag')]",
             "Cost_DivisionTag": "[parameters('Cost_DivisionTag')]",
-            "Cost_LOBTag":"[parameters('Cost_LOBTag')]", 
+            "Cost_LOBTag": "[parameters('Cost_LOBTag')]",
             "Demo": "deployment"
         },
         "networkSettings": {
@@ -167,6 +184,9 @@
                     "custName": {
                         "value": "[parameters('custName')]"
                     },
+                    "EnvironmentSize": {
+                        "value": "[parameters('EnvironmentSize')]"
+                    },
                     "adminUsername": {
                         "value": "[variables('machineSettings').adminUsername]"
                     },
@@ -194,6 +214,9 @@
                 "parameters": {
                     "custName": {
                         "value": "[parameters('custName')]"
+                    },
+                    "EnvironmentSize": {
+                        "value": "[parameters('EnvironmentSize')]"
                     },
                     "adminUsername": {
                         "value": "[variables('machineSettings').adminUsername]"
@@ -223,6 +246,9 @@
                     "custName": {
                         "value": "[parameters('custName')]"
                     },
+                    "NumberOfTaskServers": {
+                        "value": "[parameters('NumberOfTaskServers')]"
+                    },
                     "adminUsername": {
                         "value": "[variables('machineSettings').adminUsername]"
                     },
@@ -236,7 +262,7 @@
         {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-03-01",
-            "name": "Task-deploy",
+            "name": "RDSH-deploy",
             "dependsOn": [
                 "[variables('rdshConfig').rdshRG]",
                 "network-deploy"
@@ -280,6 +306,9 @@
                     "custName": {
                         "value": "[parameters('custName')]"
                     },
+                    "EnvironmentSize": {
+                        "value": "[parameters('EnvironmentSize')]"
+                    },
                     "adminUsername": {
                         "value": "[variables('machineSettings').adminUsername]"
                     },
@@ -307,6 +336,9 @@
                 "parameters": {
                     "custName": {
                         "value": "[parameters('custName')]"
+                    },
+                    "EnvironmentSize": {
+                        "value": "[parameters('EnvironmentSize')]"
                     },
                     "adminUsername": {
                         "value": "[variables('machineSettings').adminUsername]"
@@ -338,7 +370,7 @@
                     "custName": {
                         "value": "[parameters('custName')]"
                     },
-                    "resourceTags":{
+                    "resourceTags": {
                         "value": "[variables('resourceTags')]"
                     }
                 }

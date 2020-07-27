@@ -5,6 +5,9 @@
     "custName": {
       "type": "string"
     },
+    "EnvironmentSize": {
+      "type": "string"
+    },
     "adminUsername": {
       "type": "string"
     },
@@ -13,6 +16,7 @@
     }
   },
   "variables": {
+    "fileSvrSize": "[variables(concat('fileSvrSize', parameters('EnvironmentSize')))]",
     "fileVmName": "bcfile0",
     "networkInterfaceName": "[concat(variables('fileVmName'), '-nic')]",
     "imageOffer": "WindowsServer",
@@ -24,12 +28,22 @@
       "storageAccountType": "StandardSSD_LRS",
       "diskSizeGB": 2048
     },
-    "fileSizeSmall": {
+    "fileSvrSizeSmall)": {
       "virtualMachineSize": "Standard_DS3_v2",
       "numberOfVms": 1,
       "fileDataDiskCount": 1
     },
-    "dataDisksLuns": "[array(range(0 ,variables('fileSizeSmall').fileDataDiskCount))]",
+    "fileSvrSizeMedium": {
+      "virtualMachineSize": "Standard_DS3_v2",
+      "numberOfVms": 1,
+      "fileDataDiskCount": 2
+    },
+    "fileSvrSizeLarge": {
+      "virtualMachineSize": "Standard_DS3_v2",
+      "numberOfVms": 1,
+      "fileDataDiskCount": 3
+    },
+    "dataDisksLuns": "[array(range(0 ,variables('fileSvrSize').fileDataDiskCount))]",
     "custVnet": "[concat(parameters('custName'),'_network')]",
     "custNetworkRG": "network-rg",
     "custSubnet": "data_net",
@@ -44,7 +58,7 @@
       "dependsOn": [],
       "copy": {
         "name": "NIC-Loop",
-        "count": "[variables('fileSizeSmall').numberOfVms]"
+        "count": "[variables('fileSvrSize').numberOfVms]"
       },
       "properties": {
         "ipConfigurations": [
@@ -70,12 +84,12 @@
         "[concat('Microsoft.Network/networkInterfaces/', variables('networkInterfaceName'),copyIndex(1))]"
       ],
       "copy": {
-        "name":"VM-Loop",
-        "count":"[variables('fileSizeSmall').numberOfVms]"
+        "name": "VM-Loop",
+        "count": "[variables('fileSvrSize').numberOfVms]"
       },
       "properties": {
         "hardwareProfile": {
-          "vmSize": "[variables('fileSizeSmall').virtualMachineSize]"
+          "vmSize": "[variables('fileSvrSize').virtualMachineSize]"
         },
         "storageProfile": {
           "osDisk": {
@@ -94,12 +108,12 @@
           "copy": [
             {
               "name": "dataDisks",
-              "count": "[variables('fileSizeSmall').fileDataDiskCount]",
+              "count": "[variables('fileSvrSize').fileDataDiskCount]",
               "input": {
-                "name":"[concat(variables('fileVmName'),copyIndex('VM-Loop'),'-datadisk',copyIndex('dataDisks'))]",
+                "name": "[concat(variables('fileVmName'),copyIndex('VM-Loop'),'-datadisk',copyIndex('dataDisks'))]",
                 "lun": "[copyIndex('dataDisks')]",
                 "createOption": "[variables('dataDisks').createOption]",
-                "caching": "[if(greaterOrEquals(copyIndex('dataDisks'), variables('fileSizeSmall').fileDataDiskCount) ,'None', variables('dataDisks').caching )]",
+                "caching": "[if(greaterOrEquals(copyIndex('dataDisks'), variables('fileSvrSize').fileDataDiskCount) ,'None', variables('dataDisks').caching )]",
                 "writeAcceleratorEnabled": "[variables('dataDisks').writeAcceleratorEnabled]",
                 "diskSizeGB": "[variables('dataDisks').diskSizeGB]",
                 "managedDisk": {
