@@ -52,7 +52,7 @@
     "logDisksLuns": "[array(range(variables('dbSize').sqlDataDiskCount, variables('dbSize').sqlLogDiskCount))]",
     "custVnet": "[concat(parameters('custName'),'_network')]",
     "custNetworkRG": "network-rg",
-    "custSubnet": "data_net",
+    "custSubnet": "DATA_NET",
     "subnetRef": "[resourceId(variables('custNetworkRG'),'Microsoft.Network/virtualNetworks/subnets',variables('custVnet'),variables('custSubnet'))]"
   },
   "resources": [

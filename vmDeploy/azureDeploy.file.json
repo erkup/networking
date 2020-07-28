@@ -28,7 +28,7 @@
       "storageAccountType": "StandardSSD_LRS",
       "diskSizeGB": 2048
     },
-    "fileSvrSizeSmall)": {
+    "fileSvrSizeSmall": {
       "virtualMachineSize": "Standard_DS3_v2",
       "numberOfVms": 1,
       "fileDataDiskCount": 1
