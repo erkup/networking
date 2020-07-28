@@ -56,7 +56,7 @@
     },
     "variables": {
         "location": "eastUS",
-        "_artifactsLocation": "https://raw.githubusercontent.com/erkup/networking/addSizeOptions/",
+        "_artifactsLocation": "https://raw.githubusercontent.com/erkup/networking/master/",
         "resourceTags": {
             "Cost_ClientTag": "[parameters('Cost_ClientTag')]",
             "Cost_DivisionTag": "[parameters('Cost_DivisionTag')]",
@@ -183,9 +183,6 @@
                 "parameters": {
                     "custName": {
                         "value": "[parameters('custName')]"
-                    },
-                    "EnvironmentSize": {
-                        "value": "[parameters('EnvironmentSize')]"
                     },
                     "adminUsername": {
                         "value": "[variables('machineSettings').adminUsername]"
