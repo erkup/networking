@@ -5,6 +5,9 @@
     "custName": {
       "type": "string"
     },
+    "EnvironmentSize": {
+      "type": "string"
+    },
     "adminUsername": {
       "type": "string"
     },
@@ -13,13 +16,22 @@
     }
   },
   "variables": {
+    "iisSize": "[variables(concat('iisSize', parameters('EnvironmentSize')))]",
     "iisVmName": "bciis0",
     "networkInterfaceName": "[concat(variables('iisVmName'), '-nic')]",
     "imageOffer": "WindowsServer",
     "iisSku": "2019-Datacenter",
     "iisSizeSmall": {
-      "virtualMachineSize": "Standard_DS12_v2",
+      "virtualMachineSize": "Standard_DS2_v2",
       "numberOfVms": 1
+    },
+    "iisSizeMedium": {
+      "virtualMachineSize": "Standard_DS4_v2",
+      "numberOfVms": 2
+    },
+    "iisSizeLarge": {
+      "virtualMachineSize": "Standard_DS12_v2",
+      "numberOfVms": 4
     },
     "custVnet": "[concat(parameters('custName'),'_network')]",
     "custNetworkRG": "network-rg",
@@ -36,7 +48,7 @@
       ],
       "copy": {
         "name": "NIC-Loop",
-        "count": "[variables('iisSizeSmall').numberOfVms]"
+        "count": "[variables('iisSize').numberOfVms]"
       },
       "properties": {
         "ipConfigurations": [
@@ -63,11 +75,11 @@
       ],
       "copy": {
         "name": "VM-Loop",
-        "count": "[variables('iisSizeSmall').numberOfVms]"
+        "count": "[variables('iisSize').numberOfVms]"
       },
       "properties": {
         "hardwareProfile": {
-          "vmSize": "[variables('iisSizeSmall').virtualMachineSize]"
+          "vmSize": "[variables('iisSize').virtualMachineSize]"
         },
         "storageProfile": {
           "osDisk": {

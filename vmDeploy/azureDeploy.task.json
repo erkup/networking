@@ -5,6 +5,9 @@
     "custName": {
       "type": "string"
     },
+    "NumberOfTaskServers": {
+      "type": "int"
+    },
     "adminUsername": {
       "type": "string"
     },
@@ -18,10 +21,7 @@
     "networkInterfaceName": "[concat(variables('taskVmName'), '-nic')]",
     "imageOffer": "WindowsServer",
     "taskSku": "2019-Datacenter",
-    "taskSizeSmall": {
-      "virtualMachineSize": "Standard_DS2_v2",
-      "numberOfVms": 4
-    },
+    "taskSvrSize": "Standard_DS2_v2",
     "custVnet": "[concat(parameters('custName'),'_network')]",
     "custNetworkRG": "network-rg",
     "custSubnet": "data_net",
@@ -54,7 +54,7 @@
       ],
       "copy": {
         "name": "NIC-Loop",
-        "count": "[variables('taskSizeSmall').numberOfVms]"
+        "count": "[parameters('NumberOfTaskServers')]"
       },
       "properties": {
         "ipConfigurations": [
@@ -81,14 +81,14 @@
       ],
       "copy": {
         "name": "VM-Loop",
-        "count": "[variables('taskSizeSmall').numberOfVms]"
+        "count": "[parameters('NumberOfTaskServers')]"
       },
       "properties": {
         "availabilitySet":{
           "id":"[resourceId('Microsoft.Compute/availabilitySets',variables('availabilitySetName'))]"
         },
         "hardwareProfile": {
-          "vmSize": "[variables('taskSizeSmall').virtualMachineSize]"
+          "vmSize": "[variables('taskSvrSize')]"
         },
         "storageProfile": {
           "osDisk": {

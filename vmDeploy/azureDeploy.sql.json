@@ -5,6 +5,9 @@
     "custName": {
       "type": "string"
     },
+    "EnvironmentSize": {
+      "type": "string"
+    },
     "adminUsername": {
       "type": "string"
     },
@@ -13,6 +16,7 @@
     }
   },
   "variables": {
+    "dbSize": "[variables(concat('dbSize', parameters('EnvironmentSize')))]",
     "sqlVmName": "BC-Sql01",
     "networkInterfaceName": "[concat(variables('sqlVmName'),'-nic')]",
     "storageWorkloadType": "General",
@@ -30,15 +34,25 @@
       "diskSizeGB": 1023
     },
     "dbSizeSmall": {
+      "virtualMachineSize": "Standard_E4-2ds_v4",
+      "sqlDataDiskCount": 1,
+      "sqlLogDiskCount": 1
+    },
+    "dbSizeMedium": {
+      "virtualMachineSize": "Standard_E8-4ds_v4",
+      "sqlDataDiskCount": 1,
+      "sqlLogDiskCount": 1
+    },
+    "dbSizeLarge": {
       "virtualMachineSize": "Standard_E16-8s_v3",
       "sqlDataDiskCount": 1,
       "sqlLogDiskCount": 1
     },
-    "dataDisksLuns": "[array(range(0 ,variables('dbSizeSmall').sqlDataDiskCount))]",
-    "logDisksLuns": "[array(range(variables('dbSizeSmall').sqlDataDiskCount, variables('dbSizeSmall').sqlLogDiskCount))]", 
-    "custVnet":"[concat(parameters('custName'),'_network')]",
+    "dataDisksLuns": "[array(range(0 ,variables('dbSize').sqlDataDiskCount))]",
+    "logDisksLuns": "[array(range(variables('dbSize').sqlDataDiskCount, variables('dbSize').sqlLogDiskCount))]",
+    "custVnet": "[concat(parameters('custName'),'_network')]",
     "custNetworkRG": "network-rg",
-    "custSubnet": "data_net",
+    "custSubnet": "DATA_NET",
     "subnetRef": "[resourceId(variables('custNetworkRG'),'Microsoft.Network/virtualNetworks/subnets',variables('custVnet'),variables('custSubnet'))]"
   },
   "resources": [
@@ -92,11 +106,11 @@
           "copy": [
             {
               "name": "dataDisks",
-              "count": "[add(variables('dbSizeSmall').sqlDataDiskCount, variables('dbSizeSmall').sqlLogDiskCount)]",
+              "count": "[add(variables('dbSize').sqlDataDiskCount, variables('dbSize').sqlLogDiskCount)]",
               "input": {
                 "lun": "[copyIndex('dataDisks')]",
                 "createOption": "[variables('dataDisks').createOption]",
-                "caching": "[if(greaterOrEquals(copyIndex('dataDisks'), variables('dbSizeSmall').sqlDataDiskCount) ,'None', variables('dataDisks').caching )]",
+                "caching": "[if(greaterOrEquals(copyIndex('dataDisks'), variables('dbSize').sqlDataDiskCount) ,'None', variables('dataDisks').caching )]",
                 "writeAcceleratorEnabled": "[variables('dataDisks').writeAcceleratorEnabled]",
                 "diskSizeGB": "[variables('dataDisks').diskSizeGB]",
                 "managedDisk": {
