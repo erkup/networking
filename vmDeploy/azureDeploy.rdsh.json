@@ -5,6 +5,9 @@
     "custName": {
       "type": "string"
     },
+    "NumberOfRDSServers": {
+      "type": "string"
+    },
     "adminUsername": {
       "type": "string"
     },
@@ -20,7 +23,7 @@
     "rdshSku": "2019-Datacenter",
     "rdshSizeSmall": {
       "virtualMachineSize": "Standard_DS12_v2",
-      "numberOfVms": 2
+      "numberOfVms": "[parameters('NumberOfRDSServers')]"
     },
     "custVnet": "[concat(parameters('custName'),'_network')]",
     "custNetworkRG": "network-rg",

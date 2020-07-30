@@ -27,11 +27,11 @@
     },
     "iisSizeMedium": {
       "virtualMachineSize": "Standard_DS4_v2",
-      "numberOfVms": 2
+      "numberOfVms": 1
     },
     "iisSizeLarge": {
       "virtualMachineSize": "Standard_DS12_v2",
-      "numberOfVms": 4
+      "numberOfVms": 1
     },
     "custVnet": "[concat(parameters('custName'),'_network')]",
     "custNetworkRG": "network-rg",

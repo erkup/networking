@@ -40,6 +40,12 @@
                 "description": "Number of task servers to deploy (integer 1 - 10)"
             }
         },
+        "NumberOfRDSServers": {
+            "type": "int",
+            "metadata": {
+                "description": "Number of RDS servers to deploy (integer 1 - 10)"
+            }
+        },
         "adminUserName": {
             "type": "string",
             "metadata": {
@@ -64,12 +70,16 @@
             "Demo": "deployment"
         },
         "networkSettings": {
-            "virtualNetworkRG": "network-rg",
+            "virtualNetworkRG": "bluecherry",
             "networkTemplateUri": "[uri(variables('_artifactsLocation'), concat('nestedVnetDeploy/azuredeploy.network2.json'))]"
         },
         "sqlConfig": {
             "sqlTemplateUri": "[uri(variables('_artifactsLocation'), concat('vmDeploy/azureDeploy.sql.json'))]",
             "sqlRG": "bluecherry"
+        },
+        "ediConfig": {
+            "ediTemplateUri": "[uri(variables('_artifactsLocation'), concat('vmDeploy/azureDeploy.edi.json'))]",
+            "ediRG": "bluecherry"
         },
         "iisConfig": {
             "iisTemplateUri": "[uri(variables('_artifactsLocation'), concat('vmDeploy/azureDeploy.iis.json'))]",
@@ -77,15 +87,15 @@
         },
         "taskConfig": {
             "taskTemplateUri": "[uri(variables('_artifactsLocation'), concat('vmDeploy/azureDeploy.task.json'))]",
-            "taskRG": "task-rg"
+            "taskRG": "bluecherry"
         },
         "rdshConfig": {
             "rdshTemplateUri": "[uri(variables('_artifactsLocation'), concat('vmDeploy/azureDeploy.rdsh.json'))]",
-            "rdshRG": "rds-rg"
+            "rdshRG": "bluecherry"
         },
         "adConfig": {
             "adTemplateUri": "[uri(variables('_artifactsLocation'), concat('vmDeploy/azureDeploy.ad.json'))]",
-            "adRG": "ad-rg"
+            "adRG": "bluecherry"
         },
         "fileConfig": {
             "fileTemplateUri": "[uri(variables('_artifactsLocation'), concat('vmDeploy/azureDeploy.file.json'))]",
@@ -269,6 +279,37 @@
                 "mode": "Incremental",
                 "templateLink": {
                     "uri": "[variables('rdshConfig').rdshTemplateUri]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "custName": {
+                        "value": "[parameters('custName')]"
+                    },
+                    "NumberOfRDSServers":{
+                        "value": "[parameters('NumberOfRDSServers')]"
+                    },
+                    "adminUsername": {
+                        "value": "[variables('machineSettings').adminUsername]"
+                    },
+                    "adminPassword": {
+                        "value": "[variables('machineSettings').adminPassword]"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-03-01",
+            "name": "edi-deploy",
+            "dependsOn": [
+                "[variables('ediConfig').ediRG]",
+                "network-deploy"
+            ],
+            "resourceGroup": "[variables('ediConfig').ediRG]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('ediConfig').ediTemplateUri]",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {

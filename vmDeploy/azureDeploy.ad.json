@@ -13,7 +13,7 @@
     }
   },
   "variables": {
-    "ADVmName": "bcrodc0",
+    "ADVmName": "bcazdc01",
     "networkInterfaceName": "[concat(variables('ADVmName'), '-nic')]",
     "imageOffer": "WindowsServer",
     "ADSku": "2019-Datacenter",
