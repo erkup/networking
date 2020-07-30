@@ -17,7 +17,7 @@
   },
   "variables": {
     "dbSize": "[variables(concat('dbSize', parameters('EnvironmentSize')))]",
-    "sqlVmName": "BC-Sql01",
+    "sqlVmName": "bcsql01",
     "networkInterfaceName": "[concat(variables('sqlVmName'),'-nic')]",
     "storageWorkloadType": "General",
     "dataPath": "F:\\SQLData",
