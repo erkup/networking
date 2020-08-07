@@ -131,7 +131,7 @@
           ]
         },
         "osProfile": {
-          "computerName": "[variables('fileVmName')]",
+          "computerName": "[concat(variables('fileVmName'),copyIndex(1))]",
           "adminUsername": "[parameters('adminUsername')]",
           "adminPassword": "[parameters('adminPassword')]",
           "windowsConfiguration": {

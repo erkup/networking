@@ -115,7 +115,7 @@
           ]
         },
         "osProfile": {
-          "computerName": "[variables('rdshVmName')]",
+          "computerName": "[concat(variables('rdshVmName'),copyIndex(1))]",
           "adminUsername": "[parameters('adminUsername')]",
           "adminPassword": "[parameters('adminPassword')]",
           "windowsConfiguration": {

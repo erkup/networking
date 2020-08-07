@@ -113,7 +113,7 @@
           ]
         },
         "osProfile": {
-          "computerName": "[variables('taskVmName')]",
+          "computerName": "[concat('Microsoft.Network/networkInterfaces/', variables('networkInterfaceName'),copyIndex(1))]",
           "adminUsername": "[parameters('adminUsername')]",
           "adminPassword": "[parameters('adminPassword')]",
           "windowsConfiguration": {

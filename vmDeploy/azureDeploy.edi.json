@@ -139,7 +139,7 @@
           ]
         },
         "osProfile": {
-          "computerName": "[variables('ediVmName')]",
+          "computerName": "[concat(variables('ediVmName'),copyIndex())]",
           "adminUsername": "[parameters('adminUsername')]",
           "adminPassword": "[parameters('adminPassword')]",
           "windowsConfiguration": {
