@@ -167,7 +167,7 @@
                 }
             }
         },
-/*      {
+      {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-03-01",
             "name": "FileSvr-deploy",
@@ -198,7 +198,7 @@
                 }
             }
         },
-        {
+      {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-03-01",
             "name": "Task-deploy",
@@ -230,7 +230,7 @@
             }
         },
 
-        {
+/*         {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-03-01",
             "name": "RDSH-deploy",
@@ -260,7 +260,7 @@
                     }
                 }
             }
-        },
+        }, */
         {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-03-01",
@@ -351,7 +351,6 @@
                 }
             }
         },
-*/
         {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-03-01",
