@@ -31,9 +31,9 @@
       "ediDataDiskCount": 2
     },
     "dataDisksLuns": "[array(range(0 ,variables('ediSizeSmall').ediDataDiskCount))]",
-    "custVnet": "[concat(parameters('custName'),'-vnet')]",
+    "custVnet": "[concat(parameters('custName'),'_network')]",
     "custNetworkRG": "bluecherry",
-    "custSubnet": "EDI_NET",
+    "custSubnet": "edi_net",
     "subnetRef": "[resourceId(variables('custNetworkRG'),'Microsoft.Network/virtualNetworks/subnets',variables('custVnet'),variables('custSubnet'))]"
   },
   "resources": [
