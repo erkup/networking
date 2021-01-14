@@ -112,7 +112,7 @@
     },
 
     "resources": [
-/*         {
+        {
             "type": "Microsoft.Resources/resourceGroups",
             "apiVersion": "2019-10-01",
             "location": "[variables('location')]",
@@ -130,7 +130,7 @@
             "properties": {
             }
         },
-/*         {
+        {
             "type": "Microsoft.Resources/resourceGroups",
             "apiVersion": "2019-10-01",
             "location": "[variables('location')]",
