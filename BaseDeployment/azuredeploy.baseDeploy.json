@@ -120,7 +120,7 @@
             "tags": "[variables('resourceTags')]",
             "properties": {
             }
-        }, */
+        },
         {
             "type": "Microsoft.Resources/resourceGroups",
             "apiVersion": "2019-10-01",
@@ -156,7 +156,7 @@
             "tags": "[variables('resourceTags')]",
             "properties": {
             }
-        }, */
+        },
         {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-03-01",
