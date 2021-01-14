@@ -62,7 +62,7 @@
     },
     "variables": {
         "location": "eastUS",
-        "_artifactsLocation": "https://raw.githubusercontent.com/erkup/networking/master/",
+        "_artifactsLocation": "https://raw.githubusercontent.com/erkup/networking/RemoveRGs/",
         "resourceTags": {
             "Cost_ClientTag": "[parameters('Cost_ClientTag')]",
             "Cost_DivisionTag": "[parameters('Cost_DivisionTag')]",
@@ -116,43 +116,7 @@
             "type": "Microsoft.Resources/resourceGroups",
             "apiVersion": "2019-10-01",
             "location": "[variables('location')]",
-            "name": "[variables('networkSettings').virtualNetworkRG]",
-            "tags": "[variables('resourceTags')]",
-            "properties": {
-            }
-        },
-        {
-            "type": "Microsoft.Resources/resourceGroups",
-            "apiVersion": "2019-10-01",
-            "location": "[variables('location')]",
             "name": "bluecherry",
-            "tags": "[variables('resourceTags')]",
-            "properties": {
-            }
-        },
-        {
-            "type": "Microsoft.Resources/resourceGroups",
-            "apiVersion": "2019-10-01",
-            "location": "[variables('location')]",
-            "name": "[variables('taskConfig').taskRG]",
-            "tags": "[variables('resourceTags')]",
-            "properties": {
-            }
-        },
-        {
-            "type": "Microsoft.Resources/resourceGroups",
-            "apiVersion": "2019-10-01",
-            "location": "[variables('location')]",
-            "name": "[variables('rdshConfig').rdshRG]",
-            "tags": "[variables('resourceTags')]",
-            "properties": {
-            }
-        },
-        {
-            "type": "Microsoft.Resources/resourceGroups",
-            "apiVersion": "2019-10-01",
-            "location": "[variables('location')]",
-            "name": "[variables('adConfig').adRG]",
             "tags": "[variables('resourceTags')]",
             "properties": {
             }
@@ -203,7 +167,7 @@
                 }
             }
         },
-        {
+/*      {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-03-01",
             "name": "FileSvr-deploy",
@@ -387,6 +351,7 @@
                 }
             }
         },
+*/
         {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-03-01",

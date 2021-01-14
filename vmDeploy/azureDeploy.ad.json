@@ -22,7 +22,7 @@
       "numberOfVms": 1
     },
     "custVnet": "[concat(parameters('custName'),'_network')]",
-    "custNetworkRG": "network-rg",
+    "custNetworkRG": "bluecherry",
     "custSubnet": "IDENTITY_NET",
     "subnetRef": "[resourceId(variables('custNetworkRG'),'Microsoft.Network/virtualNetworks/subnets',variables('custVnet'),variables('custSubnet'))]"
   },
