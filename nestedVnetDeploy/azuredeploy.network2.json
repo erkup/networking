@@ -70,7 +70,7 @@
             "type": "Microsoft.Network/networkSecurityGroups",
             "apiVersion": "2020-04-01",
             "name": "API_NSG",
-            "location": "eastus",
+            "location": "westus",
             "tags": {
             },
             "properties": {
@@ -244,7 +244,7 @@
             "type": "Microsoft.Network/networkSecurityGroups",
             "apiVersion": "2020-04-01",
             "name": "DATA_NSG",
-            "location": "eastus",
+            "location": "westus",
             "properties": {
                 "securityRules": [
                     {
@@ -567,7 +567,7 @@
             "type": "Microsoft.Network/networkSecurityGroups",
             "apiVersion": "2020-04-01",
             "name": "DMZ_NSG",
-            "location": "eastus",
+            "location": "westus",
             "properties": {
                 "securityRules": [
                     {
@@ -697,7 +697,7 @@
             "type": "Microsoft.Network/networkSecurityGroups",
             "apiVersion": "2020-04-01",
             "name": "EDI_NSG",
-            "location": "eastus",
+            "location": "westus",
             "tags": {
             },
             "properties": {
@@ -934,7 +934,7 @@
             "type": "Microsoft.Network/networkSecurityGroups",
             "apiVersion": "2020-04-01",
             "name": "IDENTITY_NSG",
-            "location": "eastus",
+            "location": "westus",
             "tags": {
             },
             "properties": {
@@ -1066,7 +1066,7 @@
             "type": "Microsoft.Network/networkSecurityGroups",
             "apiVersion": "2020-04-01",
             "name": "LEADTEC_NSG",
-            "location": "eastus",
+            "location": "westus",
             "tags": {
             },
             "properties": {
@@ -1198,7 +1198,7 @@
             "type": "Microsoft.Network/networkSecurityGroups",
             "apiVersion": "2020-04-01",
             "name": "MGMT_NSG",
-            "location": "eastus",
+            "location": "westus",
             "tags": {
             },
             "properties": {
@@ -1328,7 +1328,7 @@
             "type": "Microsoft.Network/networkSecurityGroups",
             "apiVersion": "2020-04-01",
             "name": "RDS_NSG",
-            "location": "eastus",
+            "location": "westus",
             "properties": {
                 "securityRules": [
                     {
@@ -1500,7 +1500,7 @@
             "type": "Microsoft.Network/networkSecurityGroups",
             "apiVersion": "2020-04-01",
             "name": "SOL_NSG",
-            "location": "eastus",
+            "location": "westus",
             "tags": {
             },
             "properties": {
@@ -1740,7 +1740,7 @@
             "type": "Microsoft.Network/networkSecurityGroups",
             "apiVersion": "2020-04-01",
             "name": "WEB_NSG",
-            "location": "eastus",
+            "location": "westus",
             "tags": {
             },
             "properties": {
