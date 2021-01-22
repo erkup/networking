@@ -61,7 +61,7 @@
         }
     },
     "variables": {
-        "location": "westus",
+        "location": "eastUS",
         "_artifactsLocation": "https://raw.githubusercontent.com/erkup/networking/master/",
         "resourceTags": {
             "Cost_ClientTag": "[parameters('Cost_ClientTag')]",
@@ -230,12 +230,12 @@
             }
         },
 
-/*         {
+        {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-03-01",
             "name": "RDSH-deploy",
             "dependsOn": [
-                "[variables('rdshConfig').rdshRG]",
+                "[resourceId('Microsoft.Resources/resourceGroups', 'bluecherry')]",
                 "network-deploy"
             ],
             "resourceGroup": "[variables('rdshConfig').rdshRG]",
@@ -260,7 +260,7 @@
                     }
                 }
             }
-        }, */
+        },
         {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-03-01",

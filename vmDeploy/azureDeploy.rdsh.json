@@ -6,7 +6,7 @@
       "type": "string"
     },
     "NumberOfRDSServers": {
-      "type": "string"
+      "type": "int"
     },
     "adminUsername": {
       "type": "string"
