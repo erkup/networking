@@ -88,7 +88,7 @@
               "name": "dataDisks",
               "count": "[variables('ediSizeSmall').ediDataDiskCount]",
               "input": {
-                "name":"[concat(variables('ediVmName'),copyIndex('VM-Loop'),'-datadisk',copyIndex('dataDisks'))]",
+                "name":"[concat(variables('ediVmName'),'-datadisk',copyIndex('dataDisks'))]",
                 "lun": "[copyIndex('dataDisks')]",
                 "createOption": "[variables('dataDisks').createOption]",
                 "caching": "[if(greaterOrEquals(copyIndex('dataDisks'), variables('ediSizeSmall').ediDataDiskCount) ,'None', variables('dataDisks').caching )]",
