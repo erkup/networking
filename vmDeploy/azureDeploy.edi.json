@@ -13,9 +13,7 @@
     }
   },
   "variables": {
-    "ediVmName": "[concat(parameters('custName'),'-edi')]",
-    "availabilitySetName": "edi-AS",
-    "networkInterfaceName": "[concat(variables('ediVmName'), '-nic')]",
+    "ediVmName": "bcedi01",
     "imageOffer": "WindowsServer",
     "ediSku": "2019-Datacenter",
     "dataDisks": {
@@ -38,33 +36,12 @@
   },
   "resources": [
     {
-      "name": "[variables('availabilitySetName')]",
-      "type": "Microsoft.Compute/availabilitySets",
-      "apiVersion": "2019-07-01",
-      "location": "[resourceGroup().location]",
-      "tags": {
-        "displayName": "[variables('availabilitySetName')]"
-      },
-      "sku": {
-        "name": "Aligned"
-      },
-      "properties": {
-        "platformFaultDomainCount": 2,
-        "platformUpdateDomainCount": 2
-      }
-    },
-    {
       "type": "Microsoft.Network/networkInterfaces",
       "apiVersion": "2018-10-01",
-      "name": "[concat(variables('networkInterfaceName'),copyIndex())]",
+      "name": "[concat(variables('ediVmName'),'-nic')]",
       "location": "[resourceGroup().location]",
       "dependsOn": [
-        "[variables('availabilitySetName')]"
       ],
-      "copy": {
-        "name": "NIC-Loop",
-        "count": "[variables('ediSizeSmall').numberOfVms]"
-      },
       "properties": {
         "ipConfigurations": [
           {
@@ -83,19 +60,12 @@
     {
       "type": "Microsoft.Compute/virtualMachines",
       "apiVersion": "2018-10-01",
-      "name": "[concat(variables('ediVmName'),copyIndex())]",
+      "name": "[variables('ediVmName')]",      
       "location": "[resourceGroup().location]",
       "dependsOn": [
-        "[concat('Microsoft.Network/networkInterfaces/', variables('networkInterfaceName'),copyIndex())]"
+        "[concat(variables('ediVmName'),'-nic')]"
       ],
-      "copy": {
-        "name":"VM-Loop",
-        "count":"[variables('ediSizeSmall').numberOfVms]"
-      },
       "properties": {
-        "availabilitySet":{
-          "id":"[resourceId('Microsoft.Compute/availabilitySets',variables('availabilitySetName'))]"
-        },
         "hardwareProfile": {
           "vmSize": "[variables('ediSizeSmall').virtualMachineSize]"
         },
@@ -134,7 +104,7 @@
         "networkProfile": {
           "networkInterfaces": [
             {
-              "id": "[resourceId('Microsoft.Network/networkInterfaces',concat(variables('networkInterfaceName'),copyIndex()))]"
+              "id": "[resourceId('Microsoft.Network/networkInterfaces',concat(variables('ediVmName'),'-nic'))]"
             }
           ]
         },
