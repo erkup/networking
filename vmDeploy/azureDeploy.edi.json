@@ -71,7 +71,7 @@
         },
         "storageProfile": {
           "osDisk": {
-            "name": "[concat(variables('ediVmName'),copyIndex(),'-OSDisk')]",
+            "name": "[concat(variables('ediVmName'),'-OSDisk')]",
             "createOption": "fromImage",
             "managedDisk": {
               "storageAccountType": "Premium_LRS"
@@ -109,7 +109,7 @@
           ]
         },
         "osProfile": {
-          "computerName": "[concat(variables('ediVmName'),copyIndex())]",
+          "computerName": "[variables('ediVmName')]",
           "adminUsername": "[parameters('adminUsername')]",
           "adminPassword": "[parameters('adminPassword')]",
           "windowsConfiguration": {
