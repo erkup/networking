@@ -18,7 +18,7 @@
   "variables": {
     "taskVmName": "bctsk0",
     "availabilitySetName": "task-AS",
-    "networkInterfaceName": "[concat(variables('taskVmName'), '-nic')]",
+    // "networkInterfaceName": "[concat(variables('taskVmName'), '-nic')]",
     "imageOffer": "WindowsServer",
     "taskSku": "2019-Datacenter",
     "taskSvrSize": "Standard_DS2_v2",
@@ -28,7 +28,7 @@
     "subnetRef": "[resourceId(variables('custNetworkRG'),'Microsoft.Network/virtualNetworks/subnets',variables('custVnet'),variables('custSubnet'))]"
   },
   "resources": [
-    {
+   /*  {
       "name": "[variables('availabilitySetName')]",
       "type": "Microsoft.Compute/availabilitySets",
       "apiVersion": "2019-07-01",
@@ -44,13 +44,14 @@
         "platformUpdateDomainCount": 2
       }
     },
+ */
     {
       "type": "Microsoft.Network/networkInterfaces",
       "apiVersion": "2018-10-01",
-      "name": "[concat(variables('networkInterfaceName'),copyIndex(1))]",
+      "name": "[concat(variables('taskVmName'),copyIndex(1), '-nic')]",
       "location": "[resourceGroup().location]",
       "dependsOn": [
-        "[variables('availabilitySetName')]"
+       // "[variables('availabilitySetName')]"
       ],
       "copy": {
         "name": "NIC-Loop",
@@ -77,16 +78,16 @@
       "name": "[concat(variables('taskVmName'),copyIndex(1))]",
       "location": "[resourceGroup().location]",
       "dependsOn": [
-        "[concat('Microsoft.Network/networkInterfaces/', variables('networkInterfaceName'),copyIndex(1))]"
+        "[concat(variables('taskVmName'),copyIndex(1), '-nic')]"
       ],
       "copy": {
         "name": "VM-Loop",
         "count": "[parameters('NumberOfTaskServers')]"
       },
       "properties": {
-        "availabilitySet":{
+/*         "availabilitySet":{
           "id":"[resourceId('Microsoft.Compute/availabilitySets',variables('availabilitySetName'))]"
-        },
+        }, */
         "hardwareProfile": {
           "vmSize": "[variables('taskSvrSize')]"
         },
@@ -108,7 +109,7 @@
         "networkProfile": {
           "networkInterfaces": [
             {
-              "id": "[resourceId('Microsoft.Network/networkInterfaces',concat(variables('networkInterfaceName'),copyIndex(1)))]"
+              "id": "[resourceId('Microsoft.Network/networkInterfaces',concat(variables('taskVmName'),copyIndex(1), '-nic'))]"
             }
           ]
         },
