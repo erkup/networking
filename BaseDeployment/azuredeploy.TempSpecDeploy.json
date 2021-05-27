@@ -1,0 +1,351 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "custName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of customer"
+            }
+        },
+        "Cost_ClientTag": {
+            "type": "string"
+        },
+        "Cost_DivisionTag": {
+            "type": "string"
+        },
+        "Cost_LOBTag": {
+            "type": "string"
+        },
+        "vnetPrefix": {
+            "type": "string",
+            "metadata": {
+                "description": "Second octet of the Vnet 172.xx.0.0/16"
+            }
+        },
+        "EnvironmentSize": {
+            "type": "string",
+            "metadata": {
+                "description": "Size of the environment (small, medium, large). Will dictate the VM sizes for IIS, SQL, File"
+            },
+            "allowedValues": [
+                "Small",
+                "Medium",
+                "Large"
+            ]
+        },
+        "NumberOfTaskServers": {
+            "type": "int",
+            "metadata": {
+                "description": "Number of task servers to deploy (integer 1 - 10)"
+            }
+        },
+        "NumberOfRDSServers": {
+            "type": "int",
+            "metadata": {
+                "description": "Number of RDS servers to deploy (integer 1 - 10)"
+            }
+        },
+        "adminUserName": {
+            "type": "string",
+            "metadata": {
+                "description": "admin username of the VM"
+            }
+        },
+        "adminPassword": {
+            "type": "securestring",
+            "minLength": 8,
+            "metadata": {
+                "description": "admin password for VM"
+            }
+        }
+    },
+    "variables": {
+        "resourceGroup": "bluecherry",
+        "location": "eastUS",
+        "tempSpecRg": "templateSpec-Rg",
+        "tempSpecProvider": "[concat(subscription().id, '/resourceGroups/', variables('tempSpecRg'), '/providers/Microsoft.Resources/templateSpecs/')]",
+        "networkId": "[concat(variables('tempSpecProvider'), 'networkDeploy', '/versions/1.0')]",
+        "storageId": "[concat(variables('tempSpecProvider'), 'storage', '/versions/1.0')]",
+        "adId": "[concat(variables('tempSpecProvider'), 'AD', '/versions/1.0')]",
+        "fileId": "[concat(variables('tempSpecProvider'), 'file', '/versions/1.0')]",
+        "taskId": "[concat(variables('tempSpecProvider'), 'task', '/versions/1.0')]",
+        "rdshId": "[concat(variables('tempSpecProvider'), 'rdsh', '/versions/1.0')]",
+        "ediId": "[concat(variables('tempSpecProvider'), 'edi', '/versions/1.0')]",
+        "iisId": "[concat(variables('tempSpecProvider'), 'iis', '/versions/1.0')]",
+        "sqlId": "[concat(variables('tempSpecProvider'), 'sql', '/versions/1.0')]",
+        
+        "resourceTags": {
+            "Cost_ClientTag": "[parameters('Cost_ClientTag')]",
+            "Cost_DivisionTag": "[parameters('Cost_DivisionTag')]",
+            "Cost_LOBTag": "[parameters('Cost_LOBTag')]",
+            "Demo": "deployment"
+        },
+        "machineSettings": {
+            "adminUsername": "[parameters('adminUserName')]",
+            "adminPassword": "[parameters('adminPassword')]"
+        }
+    },
+
+    "resources": [
+        {
+            "type": "Microsoft.Resources/resourceGroups",
+            "apiVersion": "2019-10-01",
+            "location": "[variables('location')]",
+            "name": "[variables('resourceGroup')]",
+            "tags": "[variables('resourceTags')]",
+            "properties": {
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-10-01",
+            "name": "Storage-deploy",
+            "dependsOn": [
+                "[variables('resourceGroup')]",
+                "network-deploy"
+            ],
+            "resourceGroup": "[variables('resourceGroup')]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "id": "[variables('storageId')]"
+                },
+                "parameters": {}
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-10-01",
+            "name": "AD-Svr-deploy",
+            "dependsOn": [
+                "[variables('resourceGroup')]",
+                "network-deploy"
+            ],
+            "resourceGroup": "[variables('resourceGroup')]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "id": "[variables('adId')]"
+                },
+                "parameters": {
+                    "custName": {
+                        "value": "[parameters('custName')]"
+                    },
+                    "adminUsername": {
+                        "value": "[variables('machineSettings').adminUsername]"
+                    },
+                    "adminPassword": {
+                        "value": "[variables('machineSettings').adminPassword]"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-10-01",
+            "name": "FileSvr-deploy",
+            "dependsOn": [
+                "[variables('resourceGroup')]",
+                "network-deploy"
+            ],
+            "resourceGroup": "[variables('resourceGroup')]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "id": "[variables('fileId')]"
+                },
+                "parameters": {
+                    "custName": {
+                        "value": "[parameters('custName')]"
+                    },
+                    "EnvironmentSize": {
+                        "value": "[parameters('EnvironmentSize')]"
+                    },
+                    "adminUsername": {
+                        "value": "[variables('machineSettings').adminUsername]"
+                    },
+                    "adminPassword": {
+                        "value": "[variables('machineSettings').adminPassword]"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-10-01",
+            "name": "Task-deploy",
+            "dependsOn": [
+                "[variables('resourceGroup')]",
+                "network-deploy"
+            ],
+            "resourceGroup": "[variables('resourceGroup')]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "id": "[variables('taskId')]"
+                },
+                "parameters": {
+                    "custName": {
+                        "value": "[parameters('custName')]"
+                    },
+                    "NumberOfTaskServers": {
+                        "value": "[parameters('NumberOfTaskServers')]"
+                    },
+                    "adminUsername": {
+                        "value": "[variables('machineSettings').adminUsername]"
+                    },
+                    "adminPassword": {
+                        "value": "[variables('machineSettings').adminPassword]"
+                    }
+                }
+            }
+        },
+
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-10-01",
+            "name": "RDSH-deploy",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/resourceGroups', 'bluecherry')]",
+                "network-deploy"
+            ],
+            "resourceGroup": "[variables('resourceGroup')]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "id": "[variables('rdshId')]"
+                },
+                "parameters": {
+                    "custName": {
+                        "value": "[parameters('custName')]"
+                    },
+                    "NumberOfRDSServers": {
+                        "value": "[parameters('NumberOfRDSServers')]"
+                    },
+                    "adminUsername": {
+                        "value": "[variables('machineSettings').adminUsername]"
+                    },
+                    "adminPassword": {
+                        "value": "[variables('machineSettings').adminPassword]"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-10-01",
+            "name": "edi-deploy",
+            "dependsOn": [
+                "[variables('resourceGroup')]",
+                "network-deploy"
+            ],
+            "resourceGroup": "[variables('resourceGroup')]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "id": "[variables('ediId')]"
+                },
+                "parameters": {
+                    "custName": {
+                        "value": "[parameters('custName')]"
+                    },
+                    "adminUsername": {
+                        "value": "[variables('machineSettings').adminUsername]"
+                    },
+                    "adminPassword": {
+                        "value": "[variables('machineSettings').adminPassword]"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-10-01",
+            "name": "IIS-deploy",
+            "dependsOn": [
+                "[variables('resourceGroup')]",
+                "network-deploy"
+            ],
+            "resourceGroup": "[variables('resourceGroup')]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "id": "[variables('iisId')]"
+                },
+                "parameters": {
+                    "custName": {
+                        "value": "[parameters('custName')]"
+                    },
+                    "EnvironmentSize": {
+                        "value": "[parameters('EnvironmentSize')]"
+                    },
+                    "adminUsername": {
+                        "value": "[variables('machineSettings').adminUsername]"
+                    },
+                    "adminPassword": {
+                        "value": "[variables('machineSettings').adminPassword]"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-10-01",
+            "name": "SQL-deploy",
+            "dependsOn": [
+                "[variables('resourceGroup')]",
+                "network-deploy"
+            ],
+            "resourceGroup": "[variables('resourceGroup')]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "id": "[variables('sqlId')]"
+                },
+                "parameters": {
+                    "custName": {
+                        "value": "[parameters('custName')]"
+                    },
+                    "EnvironmentSize": {
+                        "value": "[parameters('EnvironmentSize')]"
+                    },
+                    "adminUsername": {
+                        "value": "[variables('machineSettings').adminUsername]"
+                    },
+                    "adminPassword": {
+                        "value": "[variables('machineSettings').adminPassword]"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-10-01",
+            "name": "network-deploy",
+            "dependsOn": [
+                "[variables('resourceGroup')]"
+            ],
+            "resourceGroup": "[variables('resourceGroup')]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "id": "[variables('networkId')]"
+                },
+                "parameters": {
+                    "vnetPrefix": {
+                        "value": "[parameters('vnetPrefix')]"
+                    },
+                    "custName": {
+                        "value": "[parameters('custName')]"
+                    },
+                    "resourceTags": {
+                        "value": "[variables('resourceTags')]"
+                    }
+                }
+            }
+        }
+    ],
+    "outputs": {
+    }
+}
