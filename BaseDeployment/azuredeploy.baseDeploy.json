@@ -8,6 +8,9 @@
                 "description": "Name of customer"
             }
         },
+        "resource_group": {
+            "type": "string"
+        },
         "Cost_ClientTag": {
             "type": "string"
         },
@@ -70,40 +73,40 @@
             "Demo": "deployment"
         },
         "networkSettings": {
-            "virtualNetworkRG": "bluecherry",
+            "virtualNetworkRG": "[parameters('resource_group')]",
             "networkTemplateUri": "[uri(variables('_artifactsLocation'), concat('nestedVnetDeploy/azuredeploy.network2.json'))]"
         },
         "sqlConfig": {
             "sqlTemplateUri": "[uri(variables('_artifactsLocation'), concat('vmDeploy/azureDeploy.sql.json'))]",
-            "sqlRG": "bluecherry"
+            "sqlRG": "[parameters('resource_group')]"
         },
         "ediConfig": {
             "ediTemplateUri": "[uri(variables('_artifactsLocation'), concat('vmDeploy/azureDeploy.edi.json'))]",
-            "ediRG": "bluecherry"
+            "ediRG": "[parameters('resource_group')]"
         },
         "iisConfig": {
             "iisTemplateUri": "[uri(variables('_artifactsLocation'), concat('vmDeploy/azureDeploy.iis.json'))]",
-            "iisRG": "bluecherry"
+            "iisRG": "[parameters('resource_group')]"
         },
         "taskConfig": {
             "taskTemplateUri": "[uri(variables('_artifactsLocation'), concat('vmDeploy/azureDeploy.task.json'))]",
-            "taskRG": "bluecherry"
+            "taskRG": "[parameters('resource_group')]"
         },
         "rdshConfig": {
             "rdshTemplateUri": "[uri(variables('_artifactsLocation'), concat('vmDeploy/azureDeploy.rdsh.json'))]",
-            "rdshRG": "bluecherry"
+            "rdshRG": "[parameters('resource_group')]"
         },
         "adConfig": {
             "adTemplateUri": "[uri(variables('_artifactsLocation'), concat('vmDeploy/azureDeploy.ad.json'))]",
-            "adRG": "bluecherry"
+            "adRG": "[parameters('resource_group')]"
         },
         "fileConfig": {
             "fileTemplateUri": "[uri(variables('_artifactsLocation'), concat('vmDeploy/azureDeploy.file.json'))]",
-            "fileRG": "bluecherry"
+            "fileRG": "[parameters('resource_group')]"
         },
         "storageConfig": {
             "storageTemplateUri": "[uri(variables('_artifactsLocation'), concat('miscDeploy/azuredeploy.storage.json'))]",
-            "storageRG": "bluecherry"
+            "storageRG": "[parameters('resource_group')]"
         },
         "machineSettings": {
             "adminUsername": "[parameters('adminUserName')]",
@@ -116,7 +119,7 @@
             "type": "Microsoft.Resources/resourceGroups",
             "apiVersion": "2019-10-01",
             "location": "[variables('location')]",
-            "name": "bluecherry",
+            "name": "[parameters('resource_group')]",
             "tags": "[variables('resourceTags')]",
             "properties": {
             }
@@ -126,7 +129,7 @@
             "apiVersion": "2019-03-01",
             "name": "Storage-deploy",
             "dependsOn": [
-                "bluecherry",
+                "[parameters('resource_group')]",
                 "network-deploy"
             ],
             "resourceGroup": "[variables('storageConfig').storageRG]",
@@ -172,7 +175,7 @@
             "apiVersion": "2019-03-01",
             "name": "FileSvr-deploy",
             "dependsOn": [
-                "bluecherry",
+                "[parameters('resource_group')]",
                 "network-deploy"
             ],
             "resourceGroup": "[variables('fileConfig').fileRG]",
@@ -294,7 +297,7 @@
             "apiVersion": "2019-03-01",
             "name": "IIS-deploy",
             "dependsOn": [
-                "bluecherry",
+                "[parameters('resource_group')]",
                 "network-deploy"
             ],
             "resourceGroup": "[variables('iisConfig').iisRG]",
@@ -325,7 +328,7 @@
             "apiVersion": "2019-03-01",
             "name": "SQL-deploy",
             "dependsOn": [
-                "bluecherry",
+                "[parameters('resource_group')]",
                 "network-deploy"
             ],
             "resourceGroup": "[variables('sqlConfig').sqlRG]",
