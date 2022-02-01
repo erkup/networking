@@ -26,7 +26,7 @@
       "numberOfVms": "[parameters('NumberOfRDSServers')]"
     },
     "custVnet": "[concat(parameters('custName'),'_network')]",
-    "custNetworkRG": "bluecherry",
+    "custNetworkRG": "[parameters('resource_group')]",
     "custSubnet": "rds_net",
     "subnetRef": "[resourceId(variables('custNetworkRG'),'Microsoft.Network/virtualNetworks/subnets',variables('custVnet'),variables('custSubnet'))]"
   },
