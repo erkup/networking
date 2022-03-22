@@ -1,0 +1,384 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "custName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of customer"
+            }
+        },
+        "Cost_ClientTag": {
+            "type": "string"
+        },
+        "Cost_DivisionTag": {
+            "type": "string"
+        },
+        "Cost_LOBTag": {
+            "type": "string"
+        },
+        "vnetPrefix": {
+            "type": "string",
+            "metadata": {
+                "description": "Second octet of the Vnet 172.xx.0.0/16"
+            }
+        },
+        "EnvironmentSize": {
+            "type": "string",
+            "metadata": {
+                "description": "Size of the environment (small, medium, large). Will dictate the VM sizes for IIS, SQL, File"
+            },
+            "allowedValues": [
+                "Small",
+                "Medium",
+                "Large"
+            ]
+        },
+        "NumberOfTaskServers": {
+            "type": "int",
+            "metadata": {
+                "description": "Number of task servers to deploy (integer 1 - 10)"
+            }
+        },
+        "NumberOfRDSServers": {
+            "type": "int",
+            "metadata": {
+                "description": "Number of RDS servers to deploy (integer 1 - 10)"
+            }
+        },
+        "adminUserName": {
+            "type": "string",
+            "metadata": {
+                "description": "admin username of the VM"
+            }
+        },
+        "adminPassword": {
+            "type": "securestring",
+            "minLength": 8,
+            "metadata": {
+                "description": "admin password for VM"
+            }
+        }
+    },
+    "variables": {
+        "location": "westus2",
+        "_artifactsLocation": "https://raw.githubusercontent.com/erkup/networking/master/",
+        "resourceTags": {
+            "Cost_ClientTag": "[parameters('Cost_ClientTag')]",
+            "Cost_DivisionTag": "[parameters('Cost_DivisionTag')]",
+            "Cost_LOBTag": "[parameters('Cost_LOBTag')]",
+            "Demo": "deployment"
+        },
+        "networkSettings": {
+            "virtualNetworkRG": "bluecherry",
+            "networkTemplateUri": "[uri(variables('_artifactsLocation'), concat('nestedVnetDeploy/azuredeploy.network2.json'))]"
+        },
+        "sqlConfig": {
+            "sqlTemplateUri": "[uri(variables('_artifactsLocation'), concat('vmDeploy/azureDeploy.sql.json'))]",
+            "sqlRG": "bluecherry"
+        },
+        "ediConfig": {
+            "ediTemplateUri": "[uri(variables('_artifactsLocation'), concat('vmDeploy/azureDeploy.edi.json'))]",
+            "ediRG": "bluecherry"
+        },
+        "iisConfig": {
+            "iisTemplateUri": "[uri(variables('_artifactsLocation'), concat('vmDeploy/azureDeploy.iis.json'))]",
+            "iisRG": "bluecherry"
+        },
+        "taskConfig": {
+            "taskTemplateUri": "[uri(variables('_artifactsLocation'), concat('vmDeploy/azureDeploy.task.json'))]",
+            "taskRG": "bluecherry"
+        },
+        "rdshConfig": {
+            "rdshTemplateUri": "[uri(variables('_artifactsLocation'), concat('vmDeploy/azureDeploy.rdsh.json'))]",
+            "rdshRG": "bluecherry"
+        },
+        "adConfig": {
+            "adTemplateUri": "[uri(variables('_artifactsLocation'), concat('vmDeploy/azureDeploy.ad.json'))]",
+            "adRG": "bluecherry"
+        },
+        "fileConfig": {
+            "fileTemplateUri": "[uri(variables('_artifactsLocation'), concat('vmDeploy/azureDeploy.file.json'))]",
+            "fileRG": "bluecherry"
+        },
+        "storageConfig": {
+            "storageTemplateUri": "[uri(variables('_artifactsLocation'), concat('miscDeploy/azuredeploy.storage.json'))]",
+            "storageRG": "bluecherry"
+        },
+        "machineSettings": {
+            "adminUsername": "[parameters('adminUserName')]",
+            "adminPassword": "[parameters('adminPassword')]"
+        }
+    },
+
+    "resources": [
+        {
+            "type": "Microsoft.Resources/resourceGroups",
+            "apiVersion": "2019-10-01",
+            "location": "[variables('location')]",
+            "name": "bluecherry",
+            "tags": "[variables('resourceTags')]",
+            "properties": {
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-03-01",
+            "name": "Storage-deploy",
+            "dependsOn": [
+                "bluecherry",
+                "network-deploy"
+            ],
+            "resourceGroup": "[variables('storageConfig').storageRG]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('storageConfig').storageTemplateUri]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {}
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-03-01",
+            "name": "AD-Svr-deploy",
+            "dependsOn": [
+                "[variables('adConfig').adRG]",
+                "network-deploy"
+            ],
+            "resourceGroup": "[variables('adConfig').adRG]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('adConfig').adTemplateUri]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "custName": {
+                        "value": "[parameters('custName')]"
+                    },
+                    "adminUsername": {
+                        "value": "[variables('machineSettings').adminUsername]"
+                    },
+                    "adminPassword": {
+                        "value": "[variables('machineSettings').adminPassword]"
+                    }
+                }
+            }
+        },
+      {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-03-01",
+            "name": "FileSvr-deploy",
+            "dependsOn": [
+                "bluecherry",
+                "network-deploy"
+            ],
+            "resourceGroup": "[variables('fileConfig').fileRG]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('fileConfig').fileTemplateUri]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "custName": {
+                        "value": "[parameters('custName')]"
+                    },
+                    "EnvironmentSize": {
+                        "value": "[parameters('EnvironmentSize')]"
+                    },
+                    "adminUsername": {
+                        "value": "[variables('machineSettings').adminUsername]"
+                    },
+                    "adminPassword": {
+                        "value": "[variables('machineSettings').adminPassword]"
+                    }
+                }
+            }
+        },
+      {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-03-01",
+            "name": "Task-deploy",
+            "dependsOn": [
+                "[variables('taskConfig').taskRG]",
+                "network-deploy"
+            ],
+            "resourceGroup": "[variables('taskConfig').taskRG]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('taskConfig').taskTemplateUri]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "custName": {
+                        "value": "[parameters('custName')]"
+                    },
+                    "NumberOfTaskServers": {
+                        "value": "[parameters('NumberOfTaskServers')]"
+                    },
+                    "adminUsername": {
+                        "value": "[variables('machineSettings').adminUsername]"
+                    },
+                    "adminPassword": {
+                        "value": "[variables('machineSettings').adminPassword]"
+                    }
+                }
+            }
+        },
+
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-03-01",
+            "name": "RDSH-deploy",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/resourceGroups', 'bluecherry')]",
+                "network-deploy"
+            ],
+            "resourceGroup": "[variables('rdshConfig').rdshRG]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('rdshConfig').rdshTemplateUri]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "custName": {
+                        "value": "[parameters('custName')]"
+                    },
+                    "NumberOfRDSServers":{
+                        "value": "[parameters('NumberOfRDSServers')]"
+                    },
+                    "adminUsername": {
+                        "value": "[variables('machineSettings').adminUsername]"
+                    },
+                    "adminPassword": {
+                        "value": "[variables('machineSettings').adminPassword]"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-03-01",
+            "name": "edi-deploy",
+            "dependsOn": [
+                "[variables('ediConfig').ediRG]",
+                "network-deploy"
+            ],
+            "resourceGroup": "[variables('ediConfig').ediRG]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('ediConfig').ediTemplateUri]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "custName": {
+                        "value": "[parameters('custName')]"
+                    },
+                    "adminUsername": {
+                        "value": "[variables('machineSettings').adminUsername]"
+                    },
+                    "adminPassword": {
+                        "value": "[variables('machineSettings').adminPassword]"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-03-01",
+            "name": "IIS-deploy",
+            "dependsOn": [
+                "bluecherry",
+                "network-deploy"
+            ],
+            "resourceGroup": "[variables('iisConfig').iisRG]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('iisConfig').iisTemplateUri]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "custName": {
+                        "value": "[parameters('custName')]"
+                    },
+                    "EnvironmentSize": {
+                        "value": "[parameters('EnvironmentSize')]"
+                    },
+                    "adminUsername": {
+                        "value": "[variables('machineSettings').adminUsername]"
+                    },
+                    "adminPassword": {
+                        "value": "[variables('machineSettings').adminPassword]"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-03-01",
+            "name": "SQL-deploy",
+            "dependsOn": [
+                "bluecherry",
+                "network-deploy"
+            ],
+            "resourceGroup": "[variables('sqlConfig').sqlRG]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('sqlConfig').sqlTemplateUri]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "custName": {
+                        "value": "[parameters('custName')]"
+                    },
+                    "EnvironmentSize": {
+                        "value": "[parameters('EnvironmentSize')]"
+                    },
+                    "adminUsername": {
+                        "value": "[variables('machineSettings').adminUsername]"
+                    },
+                    "adminPassword": {
+                        "value": "[variables('machineSettings').adminPassword]"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-03-01",
+            "name": "network-deploy",
+            "dependsOn": [
+                "[variables('networkSettings').virtualNetworkRG]"
+            ],
+            "resourceGroup": "[variables('networkSettings').virtualNetworkRG]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('networkSettings').networkTemplateUri]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "vnetPrefix": {
+                        "value": "[parameters('vnetPrefix')]"
+                    },
+                    "custName": {
+                        "value": "[parameters('custName')]"
+                    },
+                    "resourceTags": {
+                        "value": "[variables('resourceTags')]"
+                    }
+                }
+            }
+        }
+    ],
+    "outputs": {
+    }
+}
