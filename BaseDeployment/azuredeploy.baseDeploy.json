@@ -61,7 +61,7 @@
         }
     },
     "variables": {
-        "location": "eastus",
+        "location": "westus",
         "_artifactsLocation": "https://raw.githubusercontent.com/erkup/networking/master/",
         "resourceTags": {
             "Cost_ClientTag": "[parameters('Cost_ClientTag')]",
