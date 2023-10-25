@@ -51,7 +51,7 @@
     "dataDisksLuns": "[array(range(0 ,variables('dbSize').sqlDataDiskCount))]",
     "logDisksLuns": "[array(range(variables('dbSize').sqlDataDiskCount, variables('dbSize').sqlLogDiskCount))]",
     "custVnet": "[concat(parameters('custName'),'_network')]",
-    "custNetworkRG": "bcmulti_levy",
+    "custNetworkRG": "bluecherry",
     "custSubnet": "DATA_NET",
     "subnetRef": "[resourceId(variables('custNetworkRG'),'Microsoft.Network/virtualNetworks/subnets',variables('custVnet'),variables('custSubnet'))]"
   },
