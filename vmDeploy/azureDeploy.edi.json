@@ -30,7 +30,7 @@
     },
     "dataDisksLuns": "[array(range(0 ,variables('ediSizeSmall').ediDataDiskCount))]",
     "custVnet": "[concat(parameters('custName'),'_network')]",
-    "custNetworkRG": "bcmulti_levy",
+    "custNetworkRG": "bluecherry",
     "custSubnet": "edi_net",
     "subnetRef": "[resourceId(variables('custNetworkRG'),'Microsoft.Network/virtualNetworks/subnets',variables('custVnet'),variables('custSubnet'))]"
   },
