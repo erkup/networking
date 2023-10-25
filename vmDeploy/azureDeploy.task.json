@@ -1,0 +1,130 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "custName": {
+      "type": "string"
+    },
+    "NumberOfTaskServers": {
+      "type": "int"
+    },
+    "adminUsername": {
+      "type": "string"
+    },
+    "adminPassword": {
+      "type": "securestring"
+    }
+  },
+  "variables": {
+    "taskVmName": "bctsk0",
+    "availabilitySetName": "task-AS",
+    // "networkInterfaceName": "[concat(variables('taskVmName'), '-nic')]",
+    "imageOffer": "WindowsServer",
+    "taskSku": "2019-Datacenter",
+    "taskSvrSize": "Standard_DS2_v2",
+    "custVnet": "[concat(parameters('custName'),'_network')]",
+    "custNetworkRG": "bluecherry",
+    "custSubnet": "data_net",
+    "subnetRef": "[resourceId(variables('custNetworkRG'),'Microsoft.Network/virtualNetworks/subnets',variables('custVnet'),variables('custSubnet'))]"
+  },
+  "resources": [
+   /*  {
+      "name": "[variables('availabilitySetName')]",
+      "type": "Microsoft.Compute/availabilitySets",
+      "apiVersion": "2019-07-01",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "displayName": "[variables('availabilitySetName')]"
+      },
+      "sku": {
+        "name": "Aligned"
+      },
+      "properties": {
+        "platformFaultDomainCount": 2,
+        "platformUpdateDomainCount": 2
+      }
+    },
+ */
+    {
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2018-10-01",
+      "name": "[concat(variables('taskVmName'),copyIndex(1), '-nic')]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+       // "[variables('availabilitySetName')]"
+      ],
+      "copy": {
+        "name": "NIC-Loop",
+        "count": "[parameters('NumberOfTaskServers')]"
+      },
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "subnet": {
+                "id": "[variables('subnetRef')]"
+              },
+              "privateIPAllocationMethod": "Dynamic"
+            }
+          }
+        ],
+        "enableAcceleratedNetworking": true
+      }
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2018-10-01",
+      "name": "[concat(variables('taskVmName'),copyIndex(1))]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[concat(variables('taskVmName'),copyIndex(1), '-nic')]"
+      ],
+      "copy": {
+        "name": "VM-Loop",
+        "count": "[parameters('NumberOfTaskServers')]"
+      },
+      "properties": {
+/*         "availabilitySet":{
+          "id":"[resourceId('Microsoft.Compute/availabilitySets',variables('availabilitySetName'))]"
+        }, */
+        "hardwareProfile": {
+          "vmSize": "[variables('taskSvrSize')]"
+        },
+        "storageProfile": {
+          "osDisk": {
+            "name": "[concat(variables('taskVmName'),copyIndex(1),'-OSDisk')]",
+            "createOption": "fromImage",
+            "managedDisk": {
+              "storageAccountType": "StandardSSD_LRS"
+            }
+          },
+          "imageReference": {
+            "publisher": "MicrosoftWindowsServer",
+            "offer": "[variables('imageOffer')]",
+            "sku": "[variables('taskSku')]",
+            "version": "latest"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces',concat(variables('taskVmName'),copyIndex(1), '-nic'))]"
+            }
+          ]
+        },
+        "osProfile": {
+          "computerName": "[concat(variables('taskVmName'),copyIndex(1))]",
+          "adminUsername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]",
+          "windowsConfiguration": {
+            "enableAutomaticUpdates": true,
+            "provisionVmAgent": true
+          }
+        }
+      }
+    }
+  ],
+  "outputs": {
+  }
+}
