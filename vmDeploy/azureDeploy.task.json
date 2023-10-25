@@ -15,7 +15,7 @@
       "type": "securestring"
     }
   },
-  "variables": {
+   "variables": {
     "taskVmName": "bctsk0",
     "availabilitySetName": "task-AS",
     // "networkInterfaceName": "[concat(variables('taskVmName'), '-nic')]",
@@ -23,7 +23,7 @@
     "taskSku": "2019-Datacenter",
     "taskSvrSize": "Standard_DS2_v2",
     "custVnet": "[concat(parameters('custName'),'_network')]",
-    "custNetworkRG": "bcmulti_levy",
+    "custNetworkRG": "bluecherry",
     "custSubnet": "data_net",
     "subnetRef": "[resourceId(variables('custNetworkRG'),'Microsoft.Network/virtualNetworks/subnets',variables('custVnet'),variables('custSubnet'))]"
   },
