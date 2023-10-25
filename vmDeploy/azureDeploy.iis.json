@@ -34,7 +34,7 @@
       "numberOfVms": 1
     },
     "custVnet": "[concat(parameters('custName'),'_network')]",
-    "custNetworkRG": "bcmulti_levy",
+    "custNetworkRG": "bluecherry",
     "custSubnet": "data_net",
     "subnetRef": "[resourceId(variables('custNetworkRG'),'Microsoft.Network/virtualNetworks/subnets',variables('custVnet'),variables('custSubnet'))]"
   },
